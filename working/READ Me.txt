@@ -1,0 +1,14 @@
+Steps to make Development version of MMDAuthoring Tool work
+
+1 Install a test server package like MAMP and place this workspace in it.
+
+2 Change path of .css files in .user.js scripts 
+
+
+$('head').append( $('<link rel="stylesheet" type="text/css" />').attr('href','http://localhost/mmd/css/style.css') );
+$('head').append( $('<link rel="stylesheet" type="text/css" />').attr('href','http://localhost/mmd/css/jquery-ui-1.8.13.custom.css') );
+
+
+3 Install appropriate version of user script.
+
+4 Start the localhost and get started in appropriate browser.

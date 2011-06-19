@@ -8176,8 +8176,6 @@ jQuery.effects|| function(f,j) {
 
 /*
  * My script starts from here
- *
- *
  */
 
 $('head').append( $('<link rel="stylesheet" type="text/css" />').attr('href','http://localhost/mmd/css/style.css') );
