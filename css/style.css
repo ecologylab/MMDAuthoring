@@ -11,15 +11,15 @@
 	display: none;
 }
 .xpathEvaluator {
-		margin-top: 20px;
-	font-size: 11px;
+	margin-top: 5px;
+	font-size: 10px;
 }
 .ui-dialog .ui-state-error {
 	padding: .3em;
 }
 
 #creation-form,#type-form {
-	margin-top: 20px;
+	margin-top: 0px;
 }
 .validateTips {
 	border: 1px solid transparent;
@@ -51,4 +51,11 @@
 	background: url('transp_px.gif') repeat top left;
 	opacity: 0.4;
 	filter:alpha(opacity=40);
+}
+
+#outerBox{
+	font-family: Verdana;
+	font-size: 10px;
+	font-weight: normal;
+
 }

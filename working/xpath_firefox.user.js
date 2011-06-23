@@ -9014,6 +9014,8 @@ var elementInspector = {
 	}
 }
 
+
+
 /**
  * A linked list implementation in JavaScript.
  */
@@ -9070,6 +9072,40 @@ LinkedList.prototype = {
 		//don't forget to update the count
 		this._length++;
 
+	},
+	
+		/**
+	 * Appends some data to the end of the list under parent. This method traverses
+	 * the existing list and places the value at the end in a new item under appropriate parent.
+	 * @param {variant,parent,curparent} data The data to add to the list.
+	 * @return {Void}
+	 * @method add
+	 */
+	addInDepth: function (node,parent,curparent) {
+
+		if(parent==curparent)
+		{
+			this.add(node);
+		}
+		else
+		{			
+			var current = this._head;
+			while(current) {
+				if((current instanceof Collection || current instanceof Composite)) {
+					var child_node=current.getChildList();
+					if(current.getName()==parent)
+					{
+						child_node.add(node);
+						break;
+					}
+					else if(child_node.searchInDepth(new FieldTag(parent,'','',''))) {
+						child_node.addInDepth(node,parent,current.getName());
+						break;
+					}	
+				}
+				current = current.next;
+			}
+		}
 	},
 	/**
 	 * Retrieves the data in the given position in the list.
@@ -9133,9 +9169,48 @@ LinkedList.prototype = {
 					return true;
 				}
 			}
+
+			if(current instanceof Composite) {
+				var child_node=current.getChildList();
+				if(child_node.searchInDepth(node)) {
+					return true;
+				}
+			}
+
 			current = current.next;
 		}
 		return false;
+	},
+	/**
+	 * Retrieves the list of names of collection and composite
+	 * @param none
+	 * @return an array of list of names
+	 * @method item
+	 */
+
+	getCCNames: function() {
+
+		var current = this._head;
+		var namesList  = new Array();
+		var ncounter = 0;
+		while(current) {
+	
+			if(current instanceof Collection || current instanceof Composite ) 
+			{
+				namesList[ncounter] = current.getName()
+				ncounter++;
+				var child_node=current.getChildList();
+				var temp = child_node.getCCNames();
+				for(var k=0;k<temp.length;k++)
+				{
+					namesList[ncounter] = temp[k];
+					ncounter++;
+				}
+			}
+            current = current.next;
+		}
+		return namesList;
+
 	},
 	/**
 	 * Removes the item from the given location in the list.
@@ -9348,7 +9423,8 @@ Composite.prototype.toXMLString = function () {
  */
 $(document).ready( function () {
 
-	$('body').prepend(' <div id="creation-form" title="Create new node"> <p class="validateTips"> All form fields are required. </p> <form> <fieldset> <label for="name"> Name </label><br/> <input type="text" name="name" id="name" class="text ui-widget-content ui-corner-all" /> <label for="xpath"> Xpath </label><br/> <input type="text" name="xpath" id="xpath" value="" class="text ui-widget-content ui-corner-all" /> <label for="comment"> comment </label><br/> <input type="test" name="comment" id="comment" value="" class="text ui-widget-content ui-corner-all" /> <label for="type" id="toChange_type"> Type </label><br/> <input type="text" name="type" id="type" value="" class="text ui-widget-content ui-corner-all" /> </fieldset> </form> </div> <div id="type-form" title="Select Field type" > <form> <fieldset align="center"><select name="field_type" id="field_type"> <option value="Scalar" selected="selected">Scalar</option> <option value="Collection">Collection</option> <option value="Composite">Composite</option> </select> </fieldset> </form> </div> <div class="mmdMessage"> </div> <div class="xpathEvaluator" title="MMD Creator"> <span id="xpathFields"> Enter XPath for validation here:&nbsp; <br/> <input type="text" id="xpath" name="xpath" size="50"/> <input type="button" value="Validate" id="val_button"/> <br/> Generated XPath <br/> <input type="text" id="result" value="" size="50"/> <label> </label> <br/> <input type="button" id="cancel_button" value="Cancel" /> </span> <br/> <span id="mmdTree"> <b style="font-size: 13px">MMD Tags</b> <br/><table width="100%%" border="0" cellpadding="1" ><tr align="center"> <td> <input type="button" id="Add_node_button" value="Add" /> </td> <td> <input type="button" id="Delete_node_button" value="Delete" /> </td> <td> <input type="button" id="Edit_node_button" value="Edit" /> </td> <td> <input type="button" id="Generate_button" value="Generate" /> </td> </tr> </table> <br /> <table id="mmdTable" width="100%" class="ui-widget ui-widget-content"> <thead> <tr class="ui-widget-header "> <th>Name</th> <th>Type</th> <th>Hierarchy</th> </tr> </thead> </table> </span> </div> ');
+	$('body').prepend('<div id="outerBox"> <div id="creation-form" title="Create new node"> <p class="validateTips"> All form fields are required. </p> <form> <fieldset> <label for="name"> Name </label><br/> <input type="text" name="name" id="name" class="text ui-widget-content ui-corner-all" /> <label for="xpath"> Xpath </label><br/> <input type="text" name="xpath" id="xpath" value="" class="text ui-widget-content ui-corner-all" /> <label for="comment"> comment </label><br/> <input type="test" name="comment" id="comment" value="" class="text ui-widget-content ui-corner-all" /> <label for="type" id="toChange_type"> Type </label><br/> <span id="adjustable_type"> <input type="text" name="type" id="type" value="" class="text ui-widget-content ui-corner-all" /> </span> <br/> <label for="parent"> Parent </label><br/> <select name="parent" id="parent" class="text ui-widget-content ui-corner-all"> </select> </fieldset> </form> </div> <div id="type-form" title="Select Field type" > <form> <fieldset align="center"> <select name="field_type" id="field_type"> <option value="Scalar" selected="selected">Scalar</option> <option value="Collection">Collection</option> <option value="Composite">Composite</option> </select> </fieldset> </form> </div> <div class="mmdMessage"> </div> <div class="xpathEvaluator" title="MMD Creator"> <span id="xpathFields"> Enter XPath for validation here:&nbsp; <br/> <input type="text" id="xpath" name="xpath" size="50"/> <input type="button" value="Validate" id="val_button"/> <br/> Generated XPath <br/> <input type="text" id="result" value="" size="50"/> <label> </label> <br/> <input type="button" id="cancel_button" value="Cancel" /> </span> <br/> <span id="mmdTree"> <b style="font-size: 13px">MMD Tags</b> <br/> <table width="100%%" border="0" cellpadding="1" > <tr align="center"> <td> <input type="button" id="Add_node_button" value="Add" /> </td> <td> <input type="button" id="Delete_node_button" value="Delete" /> </td> <td> <input type="button" id="Edit_node_button" value="Edit" /> </td> <td> <input type="button" id="Generate_button" value="Generate" /> </td> </tr> </table> <br /> <table id="mmdTable" width="100%" class="ui-widget ui-widget-content"> <thead> <tr class="ui-widget-header "> <th>Name</th> <th>Type</th> <th>Hierarchy</th> </tr> </thead> </table> </span> </div> </div>'); 
+	
 	rootList = new LinkedList();
 
 	$('#val_button').click( function () {
@@ -9374,8 +9450,9 @@ $(document).ready( function () {
 				$(".mmdMessage").attr("title","Validated Results");
 				$( ".mmdMessage" ).dialog({
 					modal: true,
-					minHeight: 300,
 					minWidth: 300,
+					maxHeight: 500,
+					maxWidth: 300,
 					buttons: {
 						Ok: function() {
 							$( this ).dialog( "close" );
@@ -9439,9 +9516,10 @@ $(document).ready( function () {
 
 	$( "#type-form" ).dialog({
 		autoOpen: false,
-		height: 210,
+		height: 180,
 		width: 250,
 		modal: true,
+		resizable:false,
 		buttons: {
 			OK: function() {
 
@@ -9450,8 +9528,32 @@ $(document).ready( function () {
 				$("#creation-form #comment").val("");
 				$("#creation-form #xpath").val($("#result").val());
 				$("#creation-form").attr("title",$("#field_type").val());
+
+				/*
+				 * call getCCNames and use that to ppopulate selection list
+				 * 
+				 */
+
+				var data = rootList.getCCNames();
+				data[data.length]="--";
+				var html = "";
+				for (var i = 0; i < data.length; i++) {
+					html += "<option value=\"";
+					html += data[i] + "\">";
+					html += data[i] + "</option>";
+				}
+				
+				$("#parent").empty().append(html);
+
 				if($("#field_type").val()=="Scalar")
+				{
 					$("#toChange_type").html("Scalar Type");
+					$("#adjustable_type").html('<select name="type" id="type"><option value="String" selected="selected">String</option><option value="ParsedURL">ParsedURL</option><option value="Int">Int</option></select>');		
+				}
+				else
+				{
+					$("#adjustable_type").html('<input type="text" name="type" id="type" value="" class="text ui-widget-content ui-corner-all" /><br/>');
+				}
 				if($("#field_type").val()=="Collection")
 					$("#toChange_type").html("Child Type");
 				$("#creation-form" ).dialog( "open" );
@@ -9468,9 +9570,10 @@ $(document).ready( function () {
 
 	$( "#creation-form" ).dialog({
 		autoOpen: false,
-		width: 300,
-		maxWidth: 300,
+		Width:300,
+		Height:490,
 		modal: true,
+		resizable:true,
 		buttons: {
 			"Add Tag": function() {
 
@@ -9480,15 +9583,16 @@ $(document).ready( function () {
 					$( "#mmdTable" ).append( "<tr id=\""+$("#creation-form #name").val()+"\">" +
 					"<td>" + $("#creation-form #name").val() + "</td>" +
 					"<td>" + $("#creation-form").attr("title") + "</td>" +
-					"<td>" + "--" + "</td>" +
+					"<td>" + $("#creation-form #parent").val() + "</td>" +
 					"</tr>" );
-
+				
+					
 					if($("#creation-form").attr("title")=="Scalar")
-						rootList.add(new Scalar($("#creation-form #name").val(),$("#creation-form #type").val(),$("#creation-form #xpath").val(),$("#creation-form #comment").val()));
+						rootList.addInDepth(new Scalar($("#creation-form #name").val(),$("#creation-form #type").val(),$("#creation-form #xpath").val(),$("#creation-form #comment").val()),$("#creation-form #parent").val(),"--");
 					else if ($("#creation-form").attr("title")=="Collection")
-						rootList.add(new Collection($("#creation-form #name").val(),$("#creation-form #type").val(),$("#creation-form #xpath").val(),$("#creation-form #comment").val()));
+						rootList.addInDepth(new Collection($("#creation-form #name").val(),$("#creation-form #type").val(),$("#creation-form #xpath").val(),$("#creation-form #comment").val()),$("#creation-form #parent").val(),"--");
 					else
-						rootList.add(new Composite($("#creation-form #name").val(),$("#creation-form #type").val(),$("#creation-form #xpath").val(),$("#creation-form #comment").val()));
+						rootList.addInDepth(new Composite($("#creation-form #name").val(),$("#creation-form #type").val(),$("#creation-form #xpath").val(),$("#creation-form #comment").val()),$("#creation-form #parent").val(),"--");
 
 					$( this ).dialog( "close" );
 				}
