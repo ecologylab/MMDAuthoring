@@ -9,66 +9,22 @@
 		<script type="text/javascript" src="js/xpath_lib.js"></script>
 		<script type="text/javascript" src="js/xpath.js"></script>
 		<script type="text/javascript" src="js/inspector.js"></script>
-		<script type="text/javascript" src="js/tab_library.js"></script>
-		<script type="text/javascript" src="js/ui.js"></script>
+
 		<script type="text/javascript" src="js/jquery-ui-1.8.13.custom.min.js" ></script>
 		<link rel="stylesheet" type="text/css" href="css/style.css" media="screen">
 		<link rel="stylesheet" type="text/css" href="css/jquery-ui-1.8.13.custom.css" media="screen">
+		
+				<!-- tab lib .js removed -->
+	
+		<script type="text/javascript" src="js/ui.js"></script>
 	</head>
 	<body>
-<!--
+
 		<div id="outerBox">
-		<div id="creation-form" title="Create new node">
-			<p class="validateTips">
-				All form fields are required.
-			</p>
-			<form>
-				<fieldset>
-					
-					<label for="name">
-						Name
-					</label><br/>
-					<input type="text" name="name" id="name" class="text ui-widget-content ui-corner-all" />
-					<label for="xpath">
-						Xpath
-					</label><br/>
-					<input type="text" name="xpath" id="xpath" value="" class="text ui-widget-content ui-corner-all" />
-					<label for="comment">
-						comment
-					</label><br/>
-					<input type="test" name="comment" id="comment" value="" class="text ui-widget-content ui-corner-all" />
-					
-					<label for="type" id="toChange_type">
-						Type
-					</label><br/>
-					<span id="adjustable_type">
-					<input type="text" name="type" id="type" value="" class="text ui-widget-content ui-corner-all" />
-					</span>
-					<br/>
-					<label for="parent">
-						Parent
-					</label><br/>
-					<select name="parent" id="parent" class="text ui-widget-content ui-corner-all">
 
-					</select>
-				</fieldset>
-			</form>
-		</div>
-		<div id="type-form" title="Select Field type" >
-			<form>
-				<fieldset align="center">
-
-					<select name="field_type" id="field_type">
-						<option value="Scalar" selected="selected">Scalar</option>
-						<option value="Collection">Collection</option>
-						<option value="Composite">Composite</option>
-					</select>
-				</fieldset>
-			</form>
-		</div>
 		<div class="mmdMessage">
 		</div>
-		<div  class="xpathEvaluator" title="MMD Creator">
+		<div  class="xpathEvaluator" title="MMD Creator" >
 			<span id="xpathFields">
 				Enter XPath for validation here:&nbsp;
 				<br/>
@@ -83,44 +39,33 @@
 				<br/>
 				<input type="button" id="cancel_button" value="Cancel" />
 			</span>
-			<br/>
+			<br/><br/>
 			<span id="mmdTree">
 				<b style="font-size: 13px">MMD Tags</b>
 				<br/>
-
-				<table width="100%%" border="0" cellpadding="1" >
-
-					<tr align="center">
-						<td>
-						<input type="button" id="Add_node_button" value="Add" />
-						</td>
-						<td>
-						<input type="button" id="Delete_node_button" value="Delete" />
-						</td>
-						<td>
-						<input type="button" id="Edit_node_button" value="Edit" />
-						</td>
-						<td>
-						<input type="button" id="Generate_button" value="Generate" />
-						</td>
-					</tr>
-				</table>
-				<br />
+		
+				
+				
 				<table id="mmdTable" width="100%" class="ui-widget ui-widget-content">
 					<thead>
 						<tr class="ui-widget-header ">
+							<th>&nbsp;</th>
 							<th>Name</th>
+							<th>Xpath</th>
+							<th>FieldType</th>
+							<th>Comment</th>
 							<th>Type</th>
-							<th>Hierarchy</th>
+							<th>&nbsp;</th>
 						</tr>
 					</thead>
+				
+					<tr id="bottomAddButton"><td colspan="7" align="center"><br><input  type="button" id="Add_node_button" value="+" style="width: 30%" /></td></tr>
 				</table>
 			</span>
 		</div>
 		</div>
 
-		
--->
+
 		
 		<div id="apDiv1">
 			<div id="apDiv2">
@@ -129,7 +74,7 @@
 				</p>
 				<table width="200" border="1">
 					<tr>
-						<td>&nbsp;</td>
+						<td >&nbsp;</td>
 						<td>&nbsp;</td>
 						<td>&nbsp;</td>
 					</tr>

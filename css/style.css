@@ -11,6 +11,7 @@
 	display: none;
 }
 .xpathEvaluator {
+
 	margin-top: 5px;
 	font-size: 10px;
 }
@@ -59,3 +60,16 @@
 	font-weight: normal;
 
 }
+
+.crossImage{
+	
+	background-image: url('cross.png') ;
+	background-repeat: no-repeat;
+
+}
+
+.addImage{
+	background-image: url('add.png');
+	background-repeat: no-repeat;
+}
+
