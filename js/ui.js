@@ -5,99 +5,87 @@
 
 $(document).ready( function () {
 
-	var rootList = {};
-	//$('body').prepend('<div id="outerBox"><div class="mmdMessage"> </div> <div class="xpathEvaluator" title="MMD Creator" > <span id="xpathFields"> Enter XPath for validation here:&nbsp; <br/> <input type="text" id="xpath" name="xpath" size="50"/> <input type="button" value="Validate" id="val_button"/> <br/> Generated XPath <br/> <input type="text" id="result" value="" size="50"/> <label> </label> <br/> <input type="button" id="cancel_button" value="Cancel" /> </span> <br/><br/> <span id="mmdTree"> <b style="font-size: 13px">MMD Tags</b> <br/> <table id="mmdTable" width="100%" class="ui-widget ui-widget-content"> <thead> <tr class="ui-widget-header "> <th>&nbsp;</th> <th>Name</th> <th>Xpath</th> <th>FieldType</th> <th>Comment</th> <th>Type</th> <th>&nbsp;</th> </tr> </thead> <tr id="bottomAddButton"><td colspan="7" align="center"><br><input type="button" id="Add_node_button" value="+" style="width: 30%" /></td></tr> </table> </span> </div> </div>');
+	var rootMMD = {};
 
-	function BuildMMD(selectedElements)
-	{
-		
+	$('body').prepend(' <div id="outerBox"> <div class="mmdMessage"> </div> <div class="xpathEvaluator" title="MMD Creator" > <span id="xpathFields"> Enter XPath for validation here:&nbsp; <br/> <input type="text" id="xpath" name="xpath" size="50"/> <input type="button" value="Validate" id="val_button"/> <br/> Generated XPath <br/> <input type="text" id="result" value="" size="50"/> <label> </label> <br/> <input type="button" id="cancel_button" value="Cancel" /> </span> <br/><br/> <span id="mmdTree"> <b style="font-size: 13px">MMD Tags</b> <br/> <table id="mmdTable" width="100%" class="ui-widget ui-widget-content"> <thead> <tr class="ui-widget-header "> <th>&nbsp;</th> <th>Name</th> <th>Xpath</th> <th>FieldType</th> <th>Comment</th> <th>Type</th> <th>&nbsp;</th> </tr> </thead> <tr id="bottomAddButton"><td colspan="7" align="center"><br><input type="button" id="Add_node_button" value="+" style="width: 30%" /></td></tr> </table> <input type="button" id="Generate_button" value="Generate" style="width: 30%" /> </span> </div> </div>');
+
+	function BuildMMD(selectedElements) {
+		/// Object for this recursive call
+		var curMMD = new Array();
+
 		var childOfValue = selectedElements.attr("childOf");
 		var elementSize = selectedElements.size() ;
-		var ty=selectedElements;
-		var gh="Hello dude \n\n\n";
-		for(var g=0;g<elementSize;g++) 
-		{
-			gh= gh+ "\n\n"+ty.html();
-			ty = ty.next();
-		}
-		//alert(gh);
-		
-		var temp = "";
-		//alert(" called with size : "+elementSize + " childof: "+childOfValue);
-		
-		for( var i = 0 ; i < elementSize ; i++ )
-		{
-			
+
+		for( var i = 0 ; i < elementSize ; i++ ) {
+
 			var content = selectedElements.children().next();
 			var tagType = content.next().next().html();
 			var name = content.html();
 			var type = content.next().next().next().next().html();
 			var generatedXpath = content.next().html();
 			var comment = content.next().next().next().html();
-			
-			if(tagType=="Scalar")
-			{
-				temp = temp + "<scalar name=\""+name+"\" xpath=\""+generatedXpath+"\" comment=\""+ comment+"\" scalar_type=\""+type+"\" />";
-			
-			}
-			else if(tagType=="Collection")
-			{
-				
-				temp = temp + "<collection name=\""+name+"\" xpath=\""+generatedXpath+"\" comment=\""+ comment+"\" collection_child_type=\""+type+"\" > <kids>";
-			    if(selectedElements.next().attr("childOf") != childOfValue && selectedElements.next().attr("id")!="bottomAddButton")
-			    {
-			    	//alert(" inside if");
-			    	
-			    	var caller = 	"<tr id=\""+selectedElements.next().attr('id')+"\" childOf=\""+selectedElements.next().attr('childOf')+"\" >"+selectedElements.next().html()+"</tr>";
-			    	
-			    	selectedElements = selectedElements.next();
-			    	
-			    	while(selectedElements.next().attr("childOf") != childOfValue && selectedElements.next().attr("id")!="bottomAddButton")
-			    	{
-			    		//alert(" inside while \n\n\n" + childOfValue + " id : "+selectedElements.attr("id")+"child "+selectedElements.attr("childOf") );
-			        	
-			        	caller = caller + "<tr id=\""+selectedElements.next().attr('id')+"\" childOf=\""+selectedElements.next().attr('childOf')+"\" >"+selectedElements.next().html()+"</tr>";
-			    	
-			    		selectedElements= selectedElements.next();
-			    	}
-			    	//selectedElements = selectedElements.prev();
-			    	
-			    	temp = temp + BuildMMD($(caller));
-			    }
-			    temp = temp + "</kids></collection>"	
-			}
-			else if(tagType=="Composite") 
-			{
-				temp = temp + "<composite name=\""+name+"\" xpath=\""+generatedXpath+"\" comment=\""+ comment+"\" type=\""+type+"\" > <kids>";
-			    if(selectedElements.next().attr("childOf") != childOfValue && selectedElements.next().attr("id")!="bottomAddButton")
-			    {
-			    	//alert(" inside if");
-			    	
-			    	var caller = 	"<tr id=\""+selectedElements.next().attr('id')+"\" childOf=\""+selectedElements.next().attr('childOf')+"\" >"+selectedElements.next().html()+"</tr>";
-			    	
-			    	selectedElements = selectedElements.next();
-			    	
-			    	while(selectedElements.next().attr("childOf") != childOfValue && selectedElements.next().attr("id")!="bottomAddButton")
-			    	{
-			    		//alert(" inside while \n\n\n" + childOfValue + " id : "+selectedElements.attr("id")+"child "+selectedElements.attr("childOf") );
-			        	
-			        	caller = caller + "<tr id=\""+selectedElements.next().attr('id')+"\" childOf=\""+selectedElements.next().attr('childOf')+"\" >"+selectedElements.next().html()+"</tr>";
-			    	
-			    		selectedElements= selectedElements.next();
-			    	}
-			    	//selectedElements = selectedElements.prev();
-			    	
-			    	temp = temp + BuildMMD($(caller));
-			    }
-			    temp = temp + "</kids></composite>"	
+
+			if(tagType=="Scalar") {
+				var myScalar = {};
+				var myScalar_wrapper = {};
+				myScalar["name"]=name;
+				myScalar["xpath"]=generatedXpath ;
+				myScalar["comment"]=comment ;
+				myScalar["scalar_type"]= type;
+				myScalar_wrapper["scalar"]=myScalar;
+				curMMD.push(myScalar_wrapper);
+			} else if(tagType=="Collection") {
+				var collection_field_wrapper = {};
+				var collection_field = {};
+				collection_field["name"]=name;
+				collection_field["xpath"]=generatedXpath ;
+				collection_field["comment"]=comment ;
+				collection_field["type"]= type;
+				collection_field["kids"] = new Array();
+
+				if(selectedElements.next().attr("childOf") != childOfValue && selectedElements.next().attr("id")!="bottomAddButton") {
+
+					var caller = 	"<tr id=\""+selectedElements.next().attr('id')+"\" childOf=\""+selectedElements.next().attr('childOf')+"\" >"+selectedElements.next().html()+"</tr>";
+					selectedElements = selectedElements.next();
+
+					while(selectedElements.next().attr("childOf") != childOfValue && selectedElements.next().attr("id")!="bottomAddButton") {
+						caller = caller + "<tr id=\""+selectedElements.next().attr('id')+"\" childOf=\""+selectedElements.next().attr('childOf')+"\" >"+selectedElements.next().html()+"</tr>";
+						selectedElements= selectedElements.next();
+					}
+					collection_field["kids"] = BuildMMD($(caller));
+				}
+				collection_field_wrapper["collection"]=collection_field;
+				curMMD.push(collection_field_wrapper);
+			} else if(tagType=="Composite") {
+				var composite_field_wrapper = {};
+				var composite_field = {};
+				composite_field["name"]=name;
+				composite_field["xpath"]=generatedXpath ;
+				composite_field["comment"]=comment ;
+				composite_field["type"]= type;
+				composite_field["kids"] = new Array();
+
+				if(selectedElements.next().attr("childOf") != childOfValue && selectedElements.next().attr("id")!="bottomAddButton") {
+
+					var caller = 	"<tr id=\""+selectedElements.next().attr('id')+"\" childOf=\""+selectedElements.next().attr('childOf')+"\" >"+selectedElements.next().html()+"</tr>";
+					selectedElements = selectedElements.next();
+
+					while(selectedElements.next().attr("childOf") != childOfValue && selectedElements.next().attr("id")!="bottomAddButton") {
+
+						caller = caller + "<tr id=\""+selectedElements.next().attr('id')+"\" childOf=\""+selectedElements.next().attr('childOf')+"\" >"+selectedElements.next().html()+"</tr>";
+						selectedElements= selectedElements.next();
+					}
+					composite_field["kids"] = BuildMMD($(caller));
+				}
+				composite_field_wrapper["composite"] = composite_field;
+				curMMD.push(composite_field_wrapper);
 			}
 			selectedElements= selectedElements.next();
 		}
 
-		//alert(temp);
-		return temp;
+		return curMMD;
 	}
-	
+
 	function   AddNode(name,parent) {
 
 		var d = new Date();
@@ -123,8 +111,6 @@ $(document).ready( function () {
 
 			}
 
-			//alert($("$mmdTable").html());
-			// Hiding Add button in scalar
 			var tempAdd = "#"+AddID;
 			$(tempAdd).hide();
 
@@ -262,8 +248,6 @@ $(document).ready( function () {
 		});
 	}
 
-
-
 	$('#Add_node_button').click( function() {
 		AddNode("newNode","");
 	});
@@ -305,49 +289,31 @@ $(document).ready( function () {
 
 		}
 	});
-	
-	
 	$('#Generate_button').click( function() {
-	
-	var rootSelector= $("#mmdTable tr[childOf]");
-	var temp = "<root><name>imdb_title</name>"	
-	temp += "<comment>IMDB_metadata</comment>"
-	temp += "<extends>document</extends>"
-	temp += "<parser>xpath</parser>"
-	temp += "<kids>";
-	temp +=  BuildMMD(rootSelector);
-	temp += "</kids></root>";	
-	
-	//rootList = xml2json.xml_to_object(temp);
-	
-	//alert(temp);
-		//Debug testing
-		alert($.xmlToJSON(temp));
-		$(".mmdMessage").text( temp);
-				$(".mmdMessage").attr("title","Validated Results");
-				$( ".mmdMessage" ).dialog({
-					modal: true,
-					minWidth: 500,
-					maxHeight: 500,
-					maxWidth: 300,
-					buttons: {
-						Ok: function() {
-							$( this ).dialog( "close" );
-						}
-					}
-				});
-				
-				
+
+		rootMMD["name"] = "auto_generated_mmd";
+		rootMMD["comment"] = "my usefull comments";
+		rootMMD["kids"]=  BuildMMD($("#mmdTable tr[childOf]"));
+
+		$(".mmdMessage").html( JSON.stringify(rootMMD));
+		$(".mmdMessage").attr("title","JSON MMD");
+		$( ".mmdMessage" ).dialog({
+			modal: true,
+			minWidth: 500,
+			maxHeight: 500,
+			maxWidth: 300,
+			buttons: {
+				Ok: function() {
+					$( this ).dialog( "close" );
+				}
+			}
+		});
+
 	});
-	
-	
 	$('#result').keyup( function() {
 		xPathValidation();
 		elementInspector.cleanUpElem();
 	});
-	
-	
-	
 	$('#cancel_button').click( function() {
 		elementInspector.cleanUpElem();
 	});
