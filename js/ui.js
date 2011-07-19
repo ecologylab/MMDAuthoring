@@ -262,7 +262,6 @@ $(document).ready( function () {
 			var iterator = document.evaluate(inputPath , document , null, XPathResult.ANY_TYPE,null);
 
 			try {
-				var ind=1;
 				var resultValue="";
 				var thisNode = iterator.iterateNext();
 				while (thisNode) {
@@ -295,13 +294,13 @@ $(document).ready( function () {
 		rootMMD["comment"] = "my usefull comments";
 		rootMMD["kids"]=  BuildMMD($("#mmdTable tr[childOf]"));
 
-		$(".mmdMessage").html( JSON.stringify(rootMMD));
+		$(".mmdMessage").text( JSON.stringify(rootMMD));
 		$(".mmdMessage").attr("title","JSON MMD");
 		$( ".mmdMessage" ).dialog({
 			modal: true,
-			minWidth: 500,
-			maxHeight: 500,
-			maxWidth: 300,
+			minWidth: 700,
+			minHeight: 500,
+			maxWidth: 700,
 			buttons: {
 				Ok: function() {
 					$( this ).dialog( "close" );

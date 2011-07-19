@@ -12357,9 +12357,93 @@ var elementInspector = {
  *
  */
 
+/*
+ * Onload procedures
+ *
+ */
+
 $(document).ready( function () {
 
-	$('body').prepend('<div id="outerBox"><div class="mmdMessage"> </div> <div class="xpathEvaluator" title="MMD Creator" > <span id="xpathFields"> Enter XPath for validation here:&nbsp; <br/> <input type="text" id="xpath" name="xpath" size="50"/> <input type="button" value="Validate" id="val_button"/> <br/> Generated XPath <br/> <input type="text" id="result" value="" size="50"/> <label> </label> <br/> <input type="button" id="cancel_button" value="Cancel" /> </span> <br/><br/> <span id="mmdTree"> <b style="font-size: 13px">MMD Tags</b> <br/> <table id="mmdTable" width="100%" class="ui-widget ui-widget-content"> <thead> <tr class="ui-widget-header "> <th>&nbsp;</th> <th>Name</th> <th>Xpath</th> <th>FieldType</th> <th>Comment</th> <th>Type</th> <th>&nbsp;</th> </tr> </thead> <tr id="bottomAddButton"><td colspan="7" align="center"><br><input type="button" id="Add_node_button" value="+" style="width: 30%" /></td></tr> </table> </span> </div> </div>');
+	var rootMMD = {};
+
+	$('body').prepend(' <div id="outerBox"> <div class="mmdMessage"> </div> <div class="xpathEvaluator" title="MMD Creator" > <span id="xpathFields"> Enter XPath for validation here:&nbsp; <br/> <input type="text" id="xpath" name="xpath" size="50"/> <input type="button" value="Validate" id="val_button"/> <br/> Generated XPath <br/> <input type="text" id="result" value="" size="50"/> <label> </label> <br/> <input type="button" id="cancel_button" value="Cancel" /> </span> <br/><br/> <span id="mmdTree"> <b style="font-size: 13px">MMD Tags</b> <br/> <table id="mmdTable" width="100%" class="ui-widget ui-widget-content"> <thead> <tr class="ui-widget-header "> <th>&nbsp;</th> <th>Name</th> <th>Xpath</th> <th>FieldType</th> <th>Comment</th> <th>Type</th> <th>&nbsp;</th> </tr> </thead> <tr id="bottomAddButton"><td colspan="7" align="center"><br><input type="button" id="Add_node_button" value="+" style="width: 30%" /></td></tr> </table> <input type="button" id="Generate_button" value="Generate" style="width: 30%" /> </span> </div> </div>');
+
+	function BuildMMD(selectedElements) {
+		/// Object for this recursive call
+		var curMMD = new Array();
+
+		var childOfValue = selectedElements.attr("childOf");
+		var elementSize = selectedElements.size() ;
+
+		for( var i = 0 ; i < elementSize ; i++ ) {
+
+			var content = selectedElements.children().next();
+			var tagType = content.next().next().html();
+			var name = content.html();
+			var type = content.next().next().next().next().html();
+			var generatedXpath = content.next().html();
+			var comment = content.next().next().next().html();
+
+			if(tagType=="Scalar") {
+				var myScalar = {};
+				var myScalar_wrapper = {};
+				myScalar["name"]=name;
+				myScalar["xpath"]=generatedXpath ;
+				myScalar["comment"]=comment ;
+				myScalar["scalar_type"]= type;
+				myScalar_wrapper["scalar"]=myScalar;
+				curMMD.push(myScalar_wrapper);
+			} else if(tagType=="Collection") {
+				var collection_field_wrapper = {};
+				var collection_field = {};
+				collection_field["name"]=name;
+				collection_field["xpath"]=generatedXpath ;
+				collection_field["comment"]=comment ;
+				collection_field["type"]= type;
+				collection_field["kids"] = new Array();
+
+				if(selectedElements.next().attr("childOf") != childOfValue && selectedElements.next().attr("id")!="bottomAddButton") {
+
+					var caller = 	"<tr id=\""+selectedElements.next().attr('id')+"\" childOf=\""+selectedElements.next().attr('childOf')+"\" >"+selectedElements.next().html()+"</tr>";
+					selectedElements = selectedElements.next();
+
+					while(selectedElements.next().attr("childOf") != childOfValue && selectedElements.next().attr("id")!="bottomAddButton") {
+						caller = caller + "<tr id=\""+selectedElements.next().attr('id')+"\" childOf=\""+selectedElements.next().attr('childOf')+"\" >"+selectedElements.next().html()+"</tr>";
+						selectedElements= selectedElements.next();
+					}
+					collection_field["kids"] = BuildMMD($(caller));
+				}
+				collection_field_wrapper["collection"]=collection_field;
+				curMMD.push(collection_field_wrapper);
+			} else if(tagType=="Composite") {
+				var composite_field_wrapper = {};
+				var composite_field = {};
+				composite_field["name"]=name;
+				composite_field["xpath"]=generatedXpath ;
+				composite_field["comment"]=comment ;
+				composite_field["type"]= type;
+				composite_field["kids"] = new Array();
+
+				if(selectedElements.next().attr("childOf") != childOfValue && selectedElements.next().attr("id")!="bottomAddButton") {
+
+					var caller = 	"<tr id=\""+selectedElements.next().attr('id')+"\" childOf=\""+selectedElements.next().attr('childOf')+"\" >"+selectedElements.next().html()+"</tr>";
+					selectedElements = selectedElements.next();
+
+					while(selectedElements.next().attr("childOf") != childOfValue && selectedElements.next().attr("id")!="bottomAddButton") {
+
+						caller = caller + "<tr id=\""+selectedElements.next().attr('id')+"\" childOf=\""+selectedElements.next().attr('childOf')+"\" >"+selectedElements.next().html()+"</tr>";
+						selectedElements= selectedElements.next();
+					}
+					composite_field["kids"] = BuildMMD($(caller));
+				}
+				composite_field_wrapper["composite"] = composite_field;
+				curMMD.push(composite_field_wrapper);
+			}
+			selectedElements= selectedElements.next();
+		}
+
+		return curMMD;
+	}
 
 	function   AddNode(name,parent) {
 
@@ -12386,8 +12470,6 @@ $(document).ready( function () {
 
 			}
 
-			//alert($("$mmdTable").html());
-			// Hiding Add button in scalar
 			var tempAdd = "#"+AddID;
 			$(tempAdd).hide();
 
@@ -12434,13 +12516,16 @@ $(document).ready( function () {
 
 				var newValue = $('#tempHTML').val();
 				var oldValue = $('#tempHTML').parent().parent().attr("id");
+
+				if(!checkDuplicateNames(newValue)) {
+					newValue = oldValue;
+				}
 				var selectorValue = 'tr[childOf="'+oldValue+'"]';
 				$(selectorValue).attr("childOf",newValue);
 				$('#tempHTML').parent().parent().removeAttr('id');
 				$('#tempHTML').parent().parent().attr("id",newValue);
 				$('#tempHTML').parent().text(newValue);
 				$('#tempHTML').remove();
-
 			});
 		}
 		);
@@ -12505,9 +12590,12 @@ $(document).ready( function () {
 
 				var delTemp = $(this).parent().parent();
 				var delref = delTemp;
+				var marginReference = parseInt(delref.children("td").first().css("padding-left").substring(0, delref.children("td").first().css("padding-left").length - 2));
 
-				if(delTemp.next().attr('id')!="bottomAddButton" && delref.children("td").first().css("padding-left") != delTemp.next().children("td").first().css("padding-left")) {
-					while(delTemp.next().attr("id")!="bottomAddButton" && delref.children("td").first().css("padding-left") != delTemp.next().children("td").first().css("padding-left")) {
+				if(delTemp.next().attr("id")!="bottomAddButton" && marginReference < parseInt(delTemp.next().children("td").first().css("padding-left").substring(0, delTemp.next().children("td").first().css("padding-left").length - 2))) {
+
+					while(delTemp.next().attr("id")!="bottomAddButton" && marginReference < parseInt(delTemp.next().children("td").first().css("padding-left").substring(0, delTemp.next().children("td").first().css("padding-left").length - 2))) {
+
 						delTemp = delTemp.next();
 						delTemp.prev().remove();
 					}
@@ -12518,8 +12606,6 @@ $(document).ready( function () {
 			// Tag deletion node to be created here
 		});
 	}
-
-	rootList = new Array();
 
 	$('#Add_node_button').click( function() {
 		AddNode("newNode","");
@@ -12535,7 +12621,6 @@ $(document).ready( function () {
 			var iterator = document.evaluate(inputPath , document , null, XPathResult.ANY_TYPE,null);
 
 			try {
-				var ind=1;
 				var resultValue="";
 				var thisNode = iterator.iterateNext();
 				while (thisNode) {
@@ -12561,6 +12646,27 @@ $(document).ready( function () {
 			}
 
 		}
+	});
+	$('#Generate_button').click( function() {
+
+		rootMMD["name"] = "auto_generated_mmd";
+		rootMMD["comment"] = "my usefull comments";
+		rootMMD["kids"]=  BuildMMD($("#mmdTable tr[childOf]"));
+
+		$(".mmdMessage").text( JSON.stringify(rootMMD));
+		$(".mmdMessage").attr("title","JSON MMD");
+		$( ".mmdMessage" ).dialog({
+			modal: true,
+			minWidth: 700,
+			minHeight: 500,
+			maxWidth: 700,
+			buttons: {
+				Ok: function() {
+					$( this ).dialog( "close" );
+				}
+			}
+		});
+
 	});
 	$('#result').keyup( function() {
 		xPathValidation();
@@ -12598,5 +12704,3 @@ $(document).ready( function () {
 	}
 
 });
-
-
