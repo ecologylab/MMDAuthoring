@@ -61,7 +61,22 @@
 	color: #000;
 
 }
+#mmdTable td{
+	font-size: 10px;
+	font-weight: normal;
+		color: #000;	
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
 
+	
+}
+#customAttributeTable td{
+	font-size: 10px;
+	font-weight: normal;
+		color: #000;	
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+
+	
+}
 .crossImage{
 	
 	background-image: url('cross.png') ;
@@ -73,4 +88,25 @@
 	background-image: url('add.png');
 	background-repeat: no-repeat;
 }
+.customAttribute{
+	background-image: url('custom.png');
+	background-repeat: no-repeat;
+}
+.customBox{
+	font-size: 12px;	
+}
+.saveButtonClass{
 
+	width: 60px;
+	margin-left: -50px;
+}
+.addNewCustomAttributeClass{
+	width: 250px;
+	text-align: center;
+}
+.main_formatting{
+	font-size: 12px;
+	font-weight: normal;
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+	color: #000;	
+}

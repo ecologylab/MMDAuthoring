@@ -6,9 +6,35 @@
 $(document).ready( function () {
 
 	var rootMMD = {};
-
-	$('body').prepend(' <div id="outerBox"> <div class="mmdMessage"> </div> <div class="xpathEvaluator" title="MMD Creator" > <span id="xpathFields"> Enter XPath for validation here:&nbsp; <br/> <input type="text" id="xpath" name="xpath" size="50"/> <input type="button" value="Validate" id="val_button"/> <br/> Generated XPath <br/> <input type="text" id="result" value="" size="50"/> <label> </label> <br/> <input type="button" id="cancel_button" value="Cancel" /> </span> <br/><br/> <span id="mmdTree"> <b style="font-size: 13px">MMD Tags</b> <br/> <table id="mmdTable" width="100%" class="ui-widget ui-widget-content"> <thead> <tr class="ui-widget-header "> <th>&nbsp;</th> <th>Name</th> <th>Xpath</th> <th>FieldType</th> <th>Comment</th> <th>Type</th> <th>&nbsp;</th> </tr> </thead> <tr id="bottomAddButton"><td colspan="7" align="center"><br><input type="button" id="Add_node_button" value="+" style="width: 30%" /></td></tr> </table> <input type="button" id="Generate_button" value="Generate" style="width: 30%" /> </span> </div> </div>');
-
+	var customAttributeData = [
+	"Hint",
+	"RegexFilter",
+	"tag",
+	"contextNode",
+	"extends",
+	"fieldParserKey",
+	"hide",
+	"alwaysShow",
+	"style",
+	"layer",
+	"navigatesTo",
+	"shadows",
+	"label",
+	"asNaturalId",
+	"format",
+	"required",
+	"dontSerialize",
+	"isFacet",
+	"ignoreInTermVector",
+	"as_composite_scalar",
+	"field_parser",
+	"filter"
+	];
+	
+	
+	$('body').prepend(' <div id="outerBox"> <div id="customAttributeBox" callerId="" > <form id="customAttributeForm"> <table id="customAttributeTable" width="100%" class="ui-widget ui-widget-content"> <thead> <tr class="ui-widget-header "> <td></td> <th>Attribute</th> <th>Value</th> </tr> </thead> </table> </form> </div> <div class="mmdMessage"> </div> <div class="xpathEvaluator" title="MMD Creator" > <span id="xpathFields"> Enter XPath for validation here:&nbsp; <br/> <input type="text" id="xpath" name="xpath" size="50"/> <input type="button" value="Validate" id="val_button"/> <br/> Generated XPath <br/> <input type="text" id="result" value="" size="50"/> <label> </label> <br/> <input type="button" id="cancel_button" value="Cancel" /> </span> <br/><br/> <span id="mmdTree"> <b style="font-size: 13px">MMD Tags</b> <br/> <table id="mmdTable" width="100%" class="ui-widget ui-widget-content"> <thead> <tr class="ui-widget-header "> <th>&nbsp;</th> <th>Name</th> <th>Xpath</th> <th>FieldType</th> <th>Comment</th> <th>Type</th> <th>&nbsp;</th> </tr> </thead> <tr id="bottomAddButton"><td colspan="7" align="center"><br><input type="button" id="Add_node_button" value="+" style="width: 30%" /></td></tr> </table> <input type="button" id="Generate_button" value="Generate" style="width: 30%" /> </span> </div> </div>');  
+	
+	
 	function BuildMMD(selectedElements) {
 		/// Object for this recursive call
 		var curMMD = new Array();
@@ -32,6 +58,17 @@ $(document).ready( function () {
 				myScalar["xpath"]=generatedXpath ;
 				myScalar["comment"]=comment ;
 				myScalar["scalar_type"]= type;
+
+				var pastCustomAttributes = 	selectedElements.attr("customAttrib");
+
+				if(pastCustomAttributes!="") {
+					pastCustomAttributes = pastCustomAttributes.split(",");
+					for(var i=0; i<pastCustomAttributes.length ;i++) {
+						var temp = pastCustomAttributes[i].split(":");
+						myScalar[temp[0]]=temp[1];
+					}
+				}
+
 				myScalar_wrapper["scalar"]=myScalar;
 				curMMD.push(myScalar_wrapper);
 			} else if(tagType=="Collection") {
@@ -41,6 +78,16 @@ $(document).ready( function () {
 				collection_field["xpath"]=generatedXpath ;
 				collection_field["comment"]=comment ;
 				collection_field["type"]= type;
+
+				var pastCustomAttributes = 	selectedElements.attr("customAttrib");
+
+				if(pastCustomAttributes!="") {
+					pastCustomAttributes = pastCustomAttributes.split(",");
+					for(var i=0; i<pastCustomAttributes.length ;i++) {
+						var temp = pastCustomAttributes[i].split(":");
+						collection_field[temp[0]]=temp[1];
+					}
+				}
 				collection_field["kids"] = new Array();
 
 				if(selectedElements.next().attr("childOf") != childOfValue && selectedElements.next().attr("id")!="bottomAddButton") {
@@ -63,6 +110,17 @@ $(document).ready( function () {
 				composite_field["xpath"]=generatedXpath ;
 				composite_field["comment"]=comment ;
 				composite_field["type"]= type;
+
+				var pastCustomAttributes = 	selectedElements.attr("customAttrib");
+
+				if(pastCustomAttributes!="") {
+					pastCustomAttributes = pastCustomAttributes.split(",");
+					for(var i=0; i<pastCustomAttributes.length ;i++) {
+						var temp = pastCustomAttributes[i].split(":");
+						composite_field[temp[0]]=temp[1];
+					}
+				}
+
 				composite_field["kids"] = new Array();
 
 				if(selectedElements.next().attr("childOf") != childOfValue && selectedElements.next().attr("id")!="bottomAddButton") {
@@ -92,10 +150,11 @@ $(document).ready( function () {
 
 		var AddID = "Add_node_button"+d.getTime();
 		var delID = "deleteHandler"+d.getTime();
+		var cusID  = "customHandler"+d.getTime();
 
 		if(checkDuplicateNames(name )) {
 
-			var newRow = $("<tr id=\""+name+"\" childOf=\""+parent+"\"   ><td > <span id=\""+delID+"\" class=\"crossImage\"> &nbsp;&nbsp;&nbsp;  </span>&nbsp;<span  id=\""+AddID+"\" class=\"addImage\">&nbsp;&nbsp;&nbsp;   </span> </td><td class=\"nameBasedEditor\">"+name +"</td><td class=\"textBasedEditor\">"+$("#result").val()+"</td><td class=\"fieldTagBasedEditor\">Scalar</td><td class=\"textBasedEditor\">MyComment</td><td class=\"typeBasedEditor\">String</td><td></td></tr>");
+			var newRow = $("<tr id=\""+name+"\" customAttrib=\"\" childOf=\""+parent+"\"   ><td > <span id=\""+delID+"\" class=\"crossImage\"> &nbsp;&nbsp;&nbsp;  </span>&nbsp;<span  id=\""+AddID+"\" class=\"addImage\">&nbsp;&nbsp;&nbsp;   </span> </td><td class=\"nameBasedEditor\">"+name +"</td><td class=\"textBasedEditor\">"+$("#result").val()+"</td><td class=\"fieldTagBasedEditor\">Scalar</td><td class=\"textBasedEditor\">MyComment</td><td class=\"typeBasedEditor\">String</td><td class=\"customAttribute\" id=\""+cusID+"\" > &nbsp;&nbsp;&nbsp;&nbsp;</td></tr>");
 
 			if(parent=="") {
 				$("#bottomAddButton").before(newRow);
@@ -118,6 +177,7 @@ $(document).ready( function () {
 
 		AddID = "#"+AddID;
 		delID = "#" + delID;
+		cusID = "#" + cusID;
 
 		$(AddID).click( function() {
 			AddNode("newChild",$(this).parent().next().text());
@@ -246,6 +306,39 @@ $(document).ready( function () {
 			}
 			// Tag deletion node to be created here
 		});
+		// Custom Attribute options
+		$(cusID).click( function () {
+
+			/// customizing styles
+			$( "#customAttributeBox" ).dialog( "open" );
+			$( "#customAttributeBox" ).siblings('div.ui-dialog-titlebar').remove();
+			$('#customAttributeBox').addClass('customBox');
+			$( "#customAttributeBox" ).siblings('div').find('span.ui-button-text:first').parent().css("margin-left","50px");
+			$( "#customAttributeBox" ).siblings('div').find('span.ui-button-text:first').removeClass('ui-button-text');
+			$( "#customAttributeBox" ).siblings('div').find('span.ui-button-text:first').parent().css("margin-left","145px");
+			$( "#customAttributeBox" ).siblings('div').find('span.ui-button-text:first').removeClass('ui-button-text');
+			$(".ui-widget-overlay").css("opacity","0");
+			
+			var mutex = 1 ;
+			
+			$(document).mousemove( function (e) {
+				if(mutex) {
+					$("#customAttributeBox").dialog("option", {
+						position: [e.pageX, e.pageY-5]
+					});
+					mutex=0;
+				}
+			});
+			$( "#customAttributeBox" ).attr("callerId",$(this).parent().attr("id"));
+			var pastCustomAttributes = 	$(this).parent().attr("customAttrib");
+			if(pastCustomAttributes!="") {
+				pastCustomAttributes = pastCustomAttributes.split(",");
+				for(var i=0; i<pastCustomAttributes.length ;i++) {
+					var temp = pastCustomAttributes[i].split(":");
+					customAttributeUI(temp[0],temp[1]);
+				}
+			}
+		});
 	}
 
 	$('#Add_node_button').click( function() {
@@ -260,7 +353,7 @@ $(document).ready( function () {
 			alert(" Number of results "+result);
 			var inputPath = document.getElementById("xpath").value;
 			var iterator = document.evaluate(inputPath , document , null, XPathResult.ANY_TYPE,null);
-
+			var ind = 1;
 			try {
 				var resultValue="";
 				var thisNode = iterator.iterateNext();
@@ -283,13 +376,14 @@ $(document).ready( function () {
 					}
 				});
 			} catch (e) {
-				dump( 'Error: Document tree modified during iteration ' + e );
+				alert( 'Error: Document tree modified during iteration ' + e );
 			}
 
 		}
 	});
 	$('#Generate_button').click( function() {
 
+		rootMMD["parser"] = "xpath";
 		rootMMD["name"] = "auto_generated_mmd";
 		rootMMD["comment"] = "my usefull comments";
 		rootMMD["kids"]=  BuildMMD($("#mmdTable tr[childOf]"));
@@ -330,7 +424,8 @@ $(document).ready( function () {
 	}
 	$( ".xpathEvaluator" ).dialog({
 		minHeight: 100,
-		minWidth: 550
+		minWidth: 550,
+	   dialogClass: 'main_formatting'
 	});
 
 	// to be chnaged
@@ -343,5 +438,110 @@ $(document).ready( function () {
 		return  true;
 
 	}
+
+	// Custom attribute ui row adder
+
+	function customAttributeUI(attrName,attrValue) {
+
+		var d = new Date();
+		var crosstemp = "customCrossButton"+ d.getTime();
+
+		$( "#customAttributeTable" ).append('<tr class="customTemp" ><td > <span  class="crossImage" id="'+crosstemp+'" > &nbsp;&nbsp;&nbsp;  </span></td><td class="nameBasedEditor" >'+attrName+'</td><td class="valueBasedEditor" >'+attrValue+'</td></tr>');
+
+		crosstemp = "#" +crosstemp;
+
+		// Custom attribute deletion
+		$(crosstemp).click( function() {
+			$(this).parent().parent().remove();
+		});
+		//Edition option
+		$(".nameBasedEditor").dblclick( function() {
+
+			var currentValue = $(this).text();
+			var tempHTML = "<input type=\"text\" id=\"tempHTML\" value=\""+currentValue+"\" size=\"14\"/>";
+			$(this).html(tempHTML);
+			$('#tempHTML').focus();
+
+			$('#tempHTML').autocomplete({
+				source: customAttributeData,
+				select: function(event, ui) {
+					var newValue = $('#tempHTML').val();
+					$('#tempHTML').parent().text(newValue);
+					$('#tempHTML').remove();
+				},
+			});
+
+			$(".ui-autocomplete").css("font-size","12px");
+
+			$('#tempHTML').focusout( function() {
+				var newValue = $('#tempHTML').val();
+				$('#tempHTML').parent().text(newValue);
+				$('#tempHTML').remove();
+
+			});
+		}
+		);
+
+		$(".valueBasedEditor").dblclick( function() {
+
+			var currentValue = $(this).text();
+			var tempHTML = "<input type=\"text\" id=\"tempHTML\" value=\""+currentValue+"\" size=\"14\"/>";
+			$(this).html(tempHTML);
+			$('#tempHTML').focus();
+
+			$('#tempHTML').focusout( function() {
+				var newValue = $('#tempHTML').val();
+
+				$('#tempHTML').parent().text(newValue);
+				$('#tempHTML').remove();
+
+			});
+		}
+		);
+	}
+
+	$( "#customAttributeBox" ).dialog({
+		autoOpen: false,
+		height: 400,
+		minWidth: 300,
+		maxWidth: 300,
+		modal: true,
+		draggable: false,
+		resizable:true,
+		buttons: [{
+			html: "+",
+			className: 'addNewCustomAttributeClass',
+			click: function() {
+				customAttributeUI("New Attribute","Its value");
+			}
+		},{
+			text: "Ok",
+			className: 'saveButtonClass',
+			click: function() {
+
+				var current = $("#customAttributeTable").find("tr.customTemp");
+				var customAttribCount = current.size();
+				var temp ="";
+
+				while(customAttribCount) {
+					if(temp!="") {
+						temp = temp + "," ;
+					}
+					temp = temp  + current.children().next().html() + ":" + current.children().next().next().html();
+					customAttribCount--;
+					current = current.next();
+				}
+				var identifyCaller =  "#" + $("#customAttributeBox").attr("callerId");
+				$(identifyCaller).attr("customAttrib",temp);
+				$(this).dialog("close");
+			}
+		}
+		],
+		close: function() {
+			$(".ui-widget-overlay").css("opacity","0.7");
+			$(".customTemp").remove();
+			// Close code here (incidentally, same as Cancel code)
+		}
+	});
 
 });
