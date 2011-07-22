@@ -9014,8 +9014,6 @@ var elementInspector = {
 	}
 }
 
-
-
 /*
  * Onload procedures
  *
@@ -9048,11 +9046,9 @@ $(document).ready( function () {
 	"field_parser",
 	"filter"
 	];
-	
-	
-	$('body').prepend(' <div id="outerBox"> <div id="customAttributeBox" callerId="" > <form id="customAttributeForm"> <table id="customAttributeTable" width="100%" class="ui-widget ui-widget-content"> <thead> <tr class="ui-widget-header "> <td></td> <th>Attribute</th> <th>Value</th> </tr> </thead> </table> </form> </div> <div class="mmdMessage"> </div> <div class="xpathEvaluator" title="MMD Creator" > <span id="xpathFields"> Enter XPath for validation here:&nbsp; <br/> <input type="text" id="xpath" name="xpath" size="50"/> <input type="button" value="Validate" id="val_button"/> <br/> Generated XPath <br/> <input type="text" id="result" value="" size="50"/> <label> </label> <br/> <input type="button" id="cancel_button" value="Cancel" /> </span> <br/><br/> <span id="mmdTree"> <b style="font-size: 13px">MMD Tags</b> <br/> <table id="mmdTable" width="100%" class="ui-widget ui-widget-content"> <thead> <tr class="ui-widget-header "> <th>&nbsp;</th> <th>Name</th> <th>Xpath</th> <th>FieldType</th> <th>Comment</th> <th>Type</th> <th>&nbsp;</th> </tr> </thead> <tr id="bottomAddButton"><td colspan="7" align="center"><br><input type="button" id="Add_node_button" value="+" style="width: 30%" /></td></tr> </table> <input type="button" id="Generate_button" value="Generate" style="width: 30%" /> </span> </div> </div>');  
-	
-	
+
+	$('body').prepend(' <div id="outerBox"> <div id="customAttributeBox" callerId="" > <form id="customAttributeForm"> <table id="customAttributeTable" width="100%" class="ui-widget ui-widget-content"> <thead> <tr class="ui-widget-header "> <td></td> <th>Attribute</th> <th>Value</th> </tr> </thead> </table> </form> </div> <div class="mmdMessage"> </div> <div class="xpathEvaluator" title="MMD Creator" > <span id="xpathFields"> Enter XPath for validation here:&nbsp; <br/> <input type="text" id="xpath" name="xpath" size="50"/> <input type="button" value="Validate" id="val_button"/> <br/> Generated XPath <br/> <input type="text" id="result" value="" size="50"/> <label> </label> <br/> <input type="button" id="cancel_button" value="Cancel" /> </span> <br/><br/> <span id="mmdTree"> <b style="font-size: 13px">MMD Tags</b> <br/> <table id="mmdTable" width="100%" class="ui-widget ui-widget-content"> <thead> <tr class="ui-widget-header "> <th>&nbsp;</th> <th>Name</th> <th>Xpath</th> <th>FieldType</th> <th>Comment</th> <th>Type</th> <th>&nbsp;</th> </tr> </thead> <tr id="bottomAddButton"><td colspan="7" align="center"><br><input type="button" id="Add_node_button" value="+" style="width: 30%" /></td></tr> </table> <input type="button" id="Generate_button" value="Generate" style="width: 30%" /> </span> </div> </div>');
+
 	function BuildMMD(selectedElements) {
 		/// Object for this recursive call
 		var curMMD = new Array();
@@ -9336,9 +9332,9 @@ $(document).ready( function () {
 			$( "#customAttributeBox" ).siblings('div').find('span.ui-button-text:first').parent().css("margin-left","145px");
 			$( "#customAttributeBox" ).siblings('div').find('span.ui-button-text:first').removeClass('ui-button-text');
 			$(".ui-widget-overlay").css("opacity","0");
-			
+
 			var mutex = 1 ;
-			
+
 			$(document).mousemove( function (e) {
 				if(mutex) {
 					$("#customAttributeBox").dialog("option", {
@@ -9443,7 +9439,7 @@ $(document).ready( function () {
 	$( ".xpathEvaluator" ).dialog({
 		minHeight: 100,
 		minWidth: 550,
-	   dialogClass: 'main_formatting'
+		dialogClass: 'main_formatting'
 	});
 
 	// to be chnaged
