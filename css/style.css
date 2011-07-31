@@ -11,15 +11,13 @@
 	display: none;
 }
 .xpathEvaluator {
-
 	margin-top: 5px;
 	font-size: 10px;
 }
 .ui-dialog .ui-state-error {
 	padding: .3em;
 }
-
-#creation-form,#type-form {
+#creation-form, #type-form {
 	margin-top: 0px;
 }
 .validateTips {
@@ -53,60 +51,68 @@
 	opacity: 0.4;
 	filter:alpha(opacity=40);
 }
-
-#outerBox{
+#outerBox {
 	font-family: Verdana;
 	font-size: 10px;
 	font-weight: normal;
 	color: #000;
-
 }
-#mmdTable td{
+#mmdTable td {
 	font-size: 10px;
 	font-weight: normal;
-		color: #000;	
+	color: #000;
 	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
-
-	
 }
-#customAttributeTable td{
+#customAttributeTable td {
 	font-size: 10px;
 	font-weight: normal;
-		color: #000;	
+	color: #000;
 	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
-
-	
 }
-.crossImage{
-	
+.crossImage {
 	background-image: url('cross.png') ;
 	background-repeat: no-repeat;
-
 }
-
-.addImage{
+.addImage {
 	background-image: url('add.png');
 	background-repeat: no-repeat;
 }
-.customAttribute{
+.customAttribute {
 	background-image: url('custom.png');
 	background-repeat: no-repeat;
 }
-.customBox{
-	font-size: 12px;	
+.customAttributeChanged {
+	background-image: url('changed.png');
+	background-repeat: no-repeat;
 }
-.saveButtonClass{
-
+.customBox {
+	font-size: 12px;
+}
+.saveButtonClass {
 	width: 60px;
 	margin-left: -50px;
 }
-.addNewCustomAttributeClass{
+.addNewCustomAttributeClass {
 	width: 250px;
 	text-align: center;
 }
-.main_formatting{
+.main_formatting {
 	font-size: 12px;
 	font-weight: normal;
 	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
-	color: #000;	
+	color: #000;
+}
+#xpathFields {
+	font-size: 12px;
+	font-weight: normal;
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+	border-style: double;
+}
+.modifiedCursor {
+	cursor: hand;
+}
+.ui-autocomplete {
+	height: 200px;
+	overflow-y: scroll;
+	overflow-x: hidden;
 }
