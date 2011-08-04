@@ -12410,7 +12410,7 @@ $(document).ready( function () {
 
 				var pastCustomAttributes = 	selectedElements.attr("customAttrib");
 
-				if(pastCustomAttributes!="") {
+			if(pastCustomAttributes!=undefined && pastCustomAttributes!="") {
 					pastCustomAttributes = pastCustomAttributes.split(",");
 					for(var ip=0; ip<pastCustomAttributes.length ;ip++) {
 						var temp = pastCustomAttributes[ip].split(":");
@@ -12430,7 +12430,7 @@ $(document).ready( function () {
 
 				var pastCustomAttributes = 	selectedElements.attr("customAttrib");
 
-				if(pastCustomAttributes!="") {
+			if(pastCustomAttributes!=undefined && pastCustomAttributes!="") {
 					pastCustomAttributes = pastCustomAttributes.split(",");
 					for(var ig=0; ig<pastCustomAttributes.length ;ig++) {
 						var temp = pastCustomAttributes[ig].split(":");
@@ -12462,7 +12462,7 @@ $(document).ready( function () {
 
 				var pastCustomAttributes = 	selectedElements.attr("customAttrib");
 
-				if(pastCustomAttributes!="") {
+			if(pastCustomAttributes!=undefined && pastCustomAttributes!="") {
 					pastCustomAttributes = pastCustomAttributes.split(",");
 					for(var ig=0; ig<pastCustomAttributes.length ;ig++) {
 						var temp = pastCustomAttributes[ig].split(":");
