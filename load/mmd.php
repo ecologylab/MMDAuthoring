@@ -1,5 +1,9 @@
-{
-    "name": "imdb_title",
+<?php
+
+header("Header set Access-Control-Allow-Origin", "*");
+
+?>
+{  "name": "imdb_title",
     "comment": "IMDB metadata",
     "extends": "document",
     "parser": "xpath",

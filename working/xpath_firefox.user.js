@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name          Xpath
 // @namespace     http://logiclord.com
-// @description   Use this script to generate xPath.
+// @description   Use this script to generate xPath. Developed by Gaurav Aggarwal (gaurav@logiclord.com) during GSOC 2011 with EcologyLab A&M Texas University
 // @include       *
 // @require       https://ajax.googleapis.com/ajax/libs/jquery/1.5.2/jquery.min.js
 // ==/UserScript==
@@ -9013,13 +9013,14 @@ var elementInspector = {
 		this.onchange(_this.currentElem);
 	}
 }
-
 /*
  * Onload procedures
  *
  */
 
 $(document).ready( function () {
+
+	// chrome bug
 
 	var rootMMD = {};
 	var customAttributeData = [
@@ -9043,15 +9044,71 @@ $(document).ready( function () {
 	"isFacet",
 	"ignoreInTermVector",
 	"as_composite_scalar",
-	"field_parser",
-	"filter"
+	"field_parser"
 	];
 
-	$('body').prepend(' <div id="outerBox"> <div id="customAttributeBox" callerId="" > <form id="customAttributeForm"> <table id="customAttributeTable" width="100%" class="ui-widget ui-widget-content"> <thead> <tr class="ui-widget-header "> <td></td> <th>Attribute</th> <th>Value</th> </tr> </thead> </table> </form> </div> <div class="mmdMessage"> </div> <div class="xpathEvaluator" title="MMD Creator" > <span id="mmdTree"> <b style="font-size: 13px">MMD Tags</b> <span style="position:absolute; right:10px; width:20%; height:auto;" > <input type="button" id="Generate_button" value="Generate" style="width: 100%" /> </span> <br/> <table width="100%" border="0" cellpadding="1" id="xpathFields"> <tr> <td>Name</td> <td> <input type="text" id="mmdName" size="20"/> </td> <td>Selector</td> <td> <input type="text" id="selectorURL" size="20"/> </td> </tr> </table> <table id="mmdTable" width="100%" class="ui-widget ui-widget-content"> <thead> <tr class="ui-widget-header "> <th>&nbsp;</th> <th>Name</th> <th>Xpath</th> <th>FieldType</th> <th>Comment</th> <th>Type</th> <th>&nbsp;</th> </tr> </thead> <tr id="bottomAddButton"> <td colspan="7" align="center"> <br> <input type="button" id="Add_node_button" value="+" style="width: 30%" class="modifiedCursor" /> </td> </tr> </table> </span> <br/> <br/> <table width="100%" border="0" cellpadding="1" id="xpathFields"> <tr> <td>Validate</td> <td> <input type="text" id="xpath" name="xpath" size="50"/> </td> <td valign="center"> <input type="button" value="Validate" id="val_button"/> </td> </tr> <tr> <td>Generated</td> <td> <input type="text" id="result" value="" size="50" style="display: block"/> <label> </label> </td> <td valign="center"> <input type="button" id="cancel_button" value="Cancel" /> </td> </tr> </table> </div> </div>');
+	$('body').prepend(' <div id="outerBox"> <div id="customAttributeBox" callerId="" > <form id="customAttributeForm"> <table id="customAttributeTable" width="100%" class="ui-widget ui-widget-content"> <thead> <tr class="ui-widget-header "> <td></td> <th>Attribute</th> <th>Value</th> </tr> </thead> </table> </form> </div> <div class="mmdMessage"> </div> <div class="xpathEvaluator" title="MMD Creator" > <span id="mmdTree"> <b style="font-size: 13px">MMD Tags</b> <span style="position:absolute; right:10px; width:25%; height:auto;" > <input type="button" id="Load_button" value="Load" style="width: 48%; ;left:5px" /> <input type="button" id="Generate_button" value="Generate" style="width: 49%; right:5px" /> </span> <br/> <table width="100%" border="0" cellpadding="1" id="xpathFields"> <tr> <td>Name</td> <td> <input type="text" id="mmdName" size="20"/> </td> <td>Selector</td> <td> <input type="text" id="selectorURL" size="20"/> </td> </tr> </table> <table id="mmdTable" width="100%" class="ui-widget ui-widget-content"> <thead> <tr class="ui-widget-header "> <th>&nbsp;</th> <th>Name</th> <th>Xpath</th> <th>FieldType</th> <th>Comment</th> <th>Type</th> <th>&nbsp;</th> </tr> </thead> <tr id="bottomAddButton"> <td colspan="7" align="center"> <br> <input type="button" id="Add_node_button" value="+" style="width: 30%" class="modifiedCursor" /> </td> </tr> </table> </span> <br/> <br/> <table width="100%" border="0" cellpadding="1" id="xpathFields"> <tr> <td>Validate</td> <td> <input type="text" id="xpath" name="xpath" size="50"/> </td> <td valign="center"> <input type="button" value="Validate" id="val_button"/> </td> </tr> <tr> <td>Generated</td> <td> <input type="text" id="result" value="" size="50" style="display: block"/> <label> </label> </td> <td valign="center"> <input type="button" id="cancel_button" value="Cancel" /> </td> </tr> </table> </div> </div>');
 
 	$("#selectorURL").val($(location).attr('href'));
 
+	function loadInUI(currentNode,parent) {
+
+		//alert("\n\n\n\nCalled with parent :"+parent+"\n\n\n\n\n\n"+JSON.stringify(currentNode));
+		var count = currentNode.length;
+
+		for( var i = 0 ; i < count ; i++ ) {
+			var content = null;
+			var tagType ;
+			var name , type ,xPath ,comment, customAtt;
+
+			if(currentNode[i]["scalar"]!=undefined) {
+				content = currentNode[i]["scalar"];
+				tagType = "Scalar";
+			} else if(currentNode[i]["collection"]!=undefined) {
+				content = currentNode[i]["collection"];
+				tagType = "Collection";
+			} else if(currentNode[i]["composite"]!=undefined) {
+				content = currentNode[i]["composite"];
+				tagType = "Composite";
+			} else {
+				alert("Invalid Object - Unable to load in UI");
+				return;
+			}
+
+			var currentID = new Date();
+
+			name = content["name"];
+			type = content["type"]==undefined ? "" : content["type"];
+			xPath = content["xpath"]==undefined ? "" : content["xpath"];
+			comment = content["comment"]==undefined ? "" : content["comment"];
+			customAtt = loadCustomAttributes(content);
+			AddNode(name,parent,true,type,xPath,comment,tagType,customAtt,currentID);
+
+			if(content["kids"]!=undefined) {
+				currentID = currentID.getTime();
+				loadInUI(content["kids"],currentID);
+			}
+		}
+
+	}
+
+	/// Extract customAttributes to load into UI
+	function loadCustomAttributes(content) {
+		var customAtt = "" ;
+		var count = customAttributeData.length;
+
+		for(var i=0; i<count; i++) {
+
+			if(content[customAttributeData[i]]!=undefined) {
+				customAtt=customAttributeData[i]+":"+content[customAttributeData[i]];
+			}
+		}
+
+		return customAtt;
+	}
+
 	function BuildMMD(selectedElements) {
+
 		/// Object for this recursive call
 		var curMMD = new Array();
 
@@ -9077,7 +9134,8 @@ $(document).ready( function () {
 
 				var pastCustomAttributes = 	selectedElements.attr("customAttrib");
 
-				if(pastCustomAttributes!="") {
+				//alert("value of pastattribs::"+pastCustomAttributes +"::");
+				if(pastCustomAttributes!=undefined && pastCustomAttributes!="") {
 					pastCustomAttributes = pastCustomAttributes.split(",");
 					for(var ip=0; ip<pastCustomAttributes.length ;ip++) {
 						var temp = pastCustomAttributes[ip].split(":");
@@ -9097,7 +9155,7 @@ $(document).ready( function () {
 
 				var pastCustomAttributes = 	selectedElements.attr("customAttrib");
 
-				if(pastCustomAttributes!="") {
+				if(pastCustomAttributes!=undefined && pastCustomAttributes!="") {
 					pastCustomAttributes = pastCustomAttributes.split(",");
 					for(var ig=0; ig<pastCustomAttributes.length ;ig++) {
 						var temp = pastCustomAttributes[ig].split(":");
@@ -9111,9 +9169,10 @@ $(document).ready( function () {
 					var caller = 	"<tr id=\""+selectedElements.next().attr('id')+"\" childOf=\""+selectedElements.next().attr('childOf')+"\" >"+selectedElements.next().html()+"</tr>";
 					selectedElements = selectedElements.next();
 
-					while(selectedElements.next().attr("childOf") != childOfValue && selectedElements.next().attr("id")!="bottomAddButton") {
+					while(selectedElements.next().attr("childOf")!= undefined && selectedElements.next().attr("childOf") != childOfValue && selectedElements.next().attr("id")!="bottomAddButton") {
 						caller = caller + "<tr id=\""+selectedElements.next().attr('id')+"\" childOf=\""+selectedElements.next().attr('childOf')+"\" >"+selectedElements.next().html()+"</tr>";
 						selectedElements= selectedElements.next();
+
 					}
 					collection_field["kids"] = BuildMMD($(caller));
 				}
@@ -9129,7 +9188,7 @@ $(document).ready( function () {
 
 				var pastCustomAttributes = 	selectedElements.attr("customAttrib");
 
-				if(pastCustomAttributes!="") {
+				if(pastCustomAttributes!=undefined && pastCustomAttributes!="") {
 					pastCustomAttributes = pastCustomAttributes.split(",");
 					for(var ig=0; ig<pastCustomAttributes.length ;ig++) {
 						var temp = pastCustomAttributes[ig].split(":");
@@ -9144,10 +9203,11 @@ $(document).ready( function () {
 					var caller = 	"<tr id=\""+selectedElements.next().attr('id')+"\" childOf=\""+selectedElements.next().attr('childOf')+"\" >"+selectedElements.next().html()+"</tr>";
 					selectedElements = selectedElements.next();
 
-					while(selectedElements.next().attr("childOf") != childOfValue && selectedElements.next().attr("id")!="bottomAddButton") {
+					while(selectedElements.next().attr("childOf")!= undefined && selectedElements.next().attr("childOf") != childOfValue && selectedElements.next().attr("id")!="bottomAddButton") {
 
 						caller = caller + "<tr id=\""+selectedElements.next().attr('id')+"\" childOf=\""+selectedElements.next().attr('childOf')+"\" >"+selectedElements.next().html()+"</tr>";
 						selectedElements= selectedElements.next();
+
 					}
 					composite_field["kids"] = BuildMMD($(caller));
 				}
@@ -9160,26 +9220,33 @@ $(document).ready( function () {
 		return curMMD;
 	}
 
-	function   AddNode(name,parent) {
+	function   AddNode(name,parent,useData,type,xPath,comment,tagType,customAtt,currentID) {
 
 		var d = new Date();
-
+		if(useData==true) {
+			d = currentID;
+		}
 		var AddID = "Add_node_button"+d.getTime();
 		var delID = "deleteHandler"+d.getTime();
 		var cusID  = "customHandler"+d.getTime();
+		d=d.getTime();
 
-		if(checkDuplicateNames(name )) {
+		if(checkDuplicateNames(name,parent )) {
 
-			var newRow = $("<tr id=\""+name+"\" customAttrib=\"\" childOf=\""+parent+"\"   ><td > <span id=\""+delID+"\" class=\"crossImage\"> &nbsp;&nbsp;&nbsp;  </span>&nbsp;<span  id=\""+AddID+"\" class=\"addImage\">&nbsp;&nbsp;&nbsp;   </span> </td><td class=\"nameBasedEditor\">"+name +"</td><td class=\"textBasedEditor\">"+$("#result").val()+"</td><td class=\"fieldTagBasedEditor\">Scalar</td><td class=\"textBasedEditor\">MyComment</td><td class=\"typeBasedEditor\">String</td><td class=\"customAttribute\" id=\""+cusID+"\" > &nbsp;&nbsp;&nbsp;&nbsp;</td></tr>");
+			var newRow ;
+			if(useData==true)
+				newRow = $("<tr id=\""+d+"\" customAttrib=\""+customAtt+"\" childOf=\""+parent+"\" > <td > <span id=\""+delID+"\" class=\"crossImage\"> &nbsp;&nbsp;&nbsp; </span>&nbsp; <span id=\""+AddID+"\" class=\"addImage\">&nbsp;&nbsp;&nbsp; </span> </td> <td class=\"nameBasedEditor\">"+ name +"</td> <td class=\"textBasedEditor\">"+ xPath +"</td> <td class=\"fieldTagBasedEditor\">"+tagType+"</td> <td class=\"textBasedEditor\">"+comment+"</td> <td class=\"typeBasedEditor\">"+type+"</td> <td class=\"customAttribute\" id=\""+cusID+"\" > &nbsp;&nbsp;&nbsp;&nbsp;</td> </tr>");
+			else
+				newRow = $("<tr id=\""+d+"\" customAttrib =\"\" childOf=\""+parent+"\"   ><td > <span id=\""+delID+"\" class=\"crossImage\"> &nbsp;&nbsp;&nbsp;  </span>&nbsp;<span  id=\""+AddID+"\" class=\"addImage\">&nbsp;&nbsp;&nbsp;   </span> </td><td class=\"nameBasedEditor\">"+name +"</td><td class=\"textBasedEditor\">"+$("#result").val()+"</td><td class=\"fieldTagBasedEditor\">Scalar</td><td class=\"textBasedEditor\">MyComment</td><td class=\"typeBasedEditor\">String</td><td class=\"customAttribute\" id=\""+cusID+"\" > &nbsp;&nbsp;&nbsp;&nbsp;</td></tr>");
 
-			$(".xpathEvaluator").dialog( "option", "minHeight",$(".xpathEvaluator").dialog( "option", "minHeight" )+18);
+			$(".xpathEvaluator").dialog( "option", "minHeight",$(".xpathEvaluator").dialog( "option", "minHeight" )+10);
 
 			if(parent=="") {
 				$("#bottomAddButton").before(newRow);
 				//$("#mmdTable").prepend(newRow);   to add in begining
 			} else {
 				var tempPath = "#"+parent;
-				var cur = "#"+name;
+				var cur = "#"+d;
 				$(tempPath).after(newRow);
 
 				var str= $(tempPath).children("td").first().css("padding-left");
@@ -9197,10 +9264,22 @@ $(document).ready( function () {
 		delID = "#" + delID;
 		cusID = "#" + cusID;
 
+		if(customAtt!=undefined && customAtt!="") {
+			/// Changing the Custom Attributes icon so that user should know presence of attributes
+			$(cusID).removeClass('customAttribute');
+			$(cusID).addClass('customAttributeChanged');
+		}
+
+		if(tagType!=undefined && tagType!="Scalar") {
+			/// since the loaded ui node is either collection or compositie we need to provide + button
+			$(AddID).show();
+		}
+
 		$(AddID).click( function() {
-			AddNode("newChild",$(this).parent().next().text());
+			AddNode("newChild",$(this).parent().parent().attr("id"));
 		});
 		//Edition option
+
 		$(".fieldTagBasedEditor").dblclick( function() {
 
 			var tempHTML = "<select id=\"tempHTML\" ><option value=\"Scalar\" selected=\"selected\">Scalar</option><option value=\"Collection\">Collection</option><option value=\"Composite\">Composite</option></select>";
@@ -9236,13 +9315,15 @@ $(document).ready( function () {
 				var newValue = $('#tempHTML').val();
 				var oldValue = $('#tempHTML').parent().parent().attr("id");
 
-				if(!checkDuplicateNames(newValue)) {
+				if(!checkDuplicateNames(newValue,$('#tempHTML').parent().parent().attr("childOf"))) {
 					newValue = oldValue;
 				}
-				var selectorValue = 'tr[childOf="'+oldValue+'"]';
-				$(selectorValue).attr("childOf",newValue);
-				$('#tempHTML').parent().parent().removeAttr('id');
-				$('#tempHTML').parent().parent().attr("id",newValue);
+				// updating childs on the basis of name
+				//var selectorValue = 'tr[childOf="'+oldValue+'"]';
+				//$(selectorValue).attr("childOf",newValue);
+				// updating id
+				//$('#tempHTML').parent().parent().removeAttr('id');
+				//$('#tempHTML').parent().parent().attr("id",newValue);
 				$('#tempHTML').parent().text(newValue);
 				$('#tempHTML').remove();
 			});
@@ -9339,6 +9420,7 @@ $(document).ready( function () {
 
 			var mutex = 1 ;
 
+			/// Trying to capture position of cursor
 			$(document).mousemove( function (e) {
 				if(mutex) {
 					$("#customAttributeBox").dialog("option", {
@@ -9400,6 +9482,31 @@ $(document).ready( function () {
 
 		}
 	});
+	$('#Load_button').click( function() {
+
+		/// When we will have a working aervice for repository we will make this path dynamic
+
+		
+		
+		 $.getJSON('http://localhost/mmd/load/mmd.php', function(data) {
+
+		 /// if we have a success clear UI and global object
+		 rootMMD = {} ;
+
+		 /// Cleaning complete UI
+		 $("tr[childOf]").remove();
+
+		 /// setting name in UI
+		 $("#mmdName").val(data["name"]);
+
+		 /// Restoring url in UI
+		 $("#selectorURL").val(data["selector"]["url_path_tree"]);
+
+		 loadInUI(data["kids"],"");
+
+		 });
+		
+	});
 	$('#Generate_button').click( function() {
 
 		var path = {};
@@ -9452,12 +9559,20 @@ $(document).ready( function () {
 	});
 
 	// to be chnaged
-	function checkDuplicateNames(name) {
+	function checkDuplicateNames(name,parent) {
 
-		if($("#mmdTable #"+name).size() >0) {
-			alert("Name already used");
-			return false;
+		var temp = $("#mmdTable tr").filter("tr[childof="+parent+"]");
+		var count = temp.size();
+
+		for(var i=0; i <count; i++) {
+
+			if(temp.children().first().next().text() == name) {
+				alert(" Name alredy used");
+				return false;
+			}
+			temp = temp.next();
 		}
+
 		return  true;
 
 	}
@@ -9566,6 +9681,7 @@ $(document).ready( function () {
 					$(identifyCaller).children().last().addClass('customAttributeChanged');
 
 				} else {
+
 					$(identifyCaller).children().last().addClass('customAttribute');
 					$(identifyCaller).children().last().removeClass('customAttributeChanged');
 				}

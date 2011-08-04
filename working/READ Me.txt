@@ -12,3 +12,5 @@ $('head').append( $('<link rel="stylesheet" type="text/css" />').attr('href','ht
 3 Install appropriate version of user script.
 
 4 Start the localhost and get started in appropriate browser.
+
+5 Respository service must have headers of the form in load\mmd.php header("Header set Access-Control-Allow-Origin", "*"); to allow cross domain load and save service

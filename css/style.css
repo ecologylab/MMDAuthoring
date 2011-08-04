@@ -102,12 +102,15 @@
 	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
 	color: #000;
 }
-#xpathFields {
+
+td{
 	font-size: 12px;
 	font-weight: normal;
 	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
-	border-style: double;
+	border-style: hidden;
+	color: #000000;
 }
+
 .modifiedCursor {
 	cursor: hand;
 }
