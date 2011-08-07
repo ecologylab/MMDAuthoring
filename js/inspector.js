@@ -1,3 +1,6 @@
+///<summary>
+/// Validates XPath in #result textbox and update label. 
+///</summary>
 function xPathValidation() {
 	xPathResult = xPath.validate($('#result').val(), document);
 	if (xPathResult == -1) {
@@ -7,6 +10,7 @@ function xPathValidation() {
 	}
 }
 
+/// Current XPath selected element 
 var elementInspector = {
 	currentElem : '',
 	notSelector : ':not(html, head, body, br, tr, tbody, script, #iframe_id, #inspectorControlsID,  #inspectorControlsID *)',
@@ -56,6 +60,8 @@ var elementInspector = {
 		$('#inspectorControlsID div', _this.currentDoc).click( function() {
 			_this.traversing($(this).html());
 		});
+
+        // uncomment to disbale right click menu
 		//disable context menu
 		/*    _this.currentDoc.body.oncontextmenu = function() {
 		 return false;
@@ -184,7 +190,6 @@ var elementInspector = {
 		this.markElem(this.currentElem);
 
 		// updating xpath results while navigating
-
 		$('#result').val(xPath.generate(this.currentElem, document));
 		xPathValidation();
 

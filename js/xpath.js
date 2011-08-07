@@ -1,3 +1,4 @@
+/// Current XPath object
 var xPath = {
     ignoreArguments : {
       'body' : 1,
@@ -47,10 +48,12 @@ var xPath = {
             if (xPath.ignoreTags[nodeTag] != 1) {
                 nodeClass = node.attr('class');
                 if (xPath.ignoreArguments[nodeTag] != 1 && node.attr('id') != '') {
+
+                  // If id is uniqie we can used \\tag[id='id_value]\.... 
                   if (this.checkForUniqueId(node.attr('id')) == 1 && this.validate('id(\'' + node.attr('id') + '\')' + sXPath, doc) == 1) {
                      
-                     // Next line was changed on 6th june for id('value') bug fix 
-                     // sXPath = 'id(\'' + node.attr('id') + '\')' + sXPath;
+                      // Next line was changed on 6th june for id('value') bug fix 
+                      // sXPath = 'id(\'' + node.attr('id') + '\')' + sXPath;
                  	    sXPath = '//*[@id=\'' + node.attr('id') + '\']' + sXPath;
                  	     return sXPath;
                  	     
@@ -108,9 +111,11 @@ var xPath = {
         return (sXPath);
     },
 
+    // Check whether if is unique or not
     checkForUniqueId: function(id) {
         iFound = 0;
-        $('*').each(function() {
+        $('*').each(function () {
+           // Count using JQuery selector
            if ($(this).attr('id') == id) {
                iFound++;
            }
@@ -121,9 +126,13 @@ var xPath = {
     
 }
 
-// to deal with id('id_value') bug 
-// status = not used
 
+
+///<summary>
+/// To convert id('id_value') to //*[@id='id_value']. status : not used
+///</summary>
+///<param name="str">String to be modified</param>
+///<returns>Modified string</returns>	
  function xpathBugFix(str) {
 		
 		var strLength = str.length;
@@ -144,9 +153,13 @@ var xPath = {
 		
 		return str;
 	}
-	
-	
-function jqescape(str) { 
-	return str.replace(/[#;&,\.\+\*~':"!\^\$\[\]\(\)=>|\/\\]/g, '\\\\$&'); 
-}
+
+    ///<summary>
+    /// To escape a given string
+    ///</summary>
+    ///<param name="str"> String to be escaped</param>
+    ///<returns>Escaped string</returns>	
+    function jqescape(str) { 
+	    return str.replace(/[#;&,\.\+\*~':"!\^\$\[\]\(\)=>|\/\\]/g, '\\\\$&'); 
+    }
 

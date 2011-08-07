@@ -1,7 +1,25 @@
+/*
+	In-browser Meta Metadata Authoring Tool
+	Copyright (C) 2011 Gaurav Aggarwal (gaurav@logiclord.com) 
+
+	This library is free software; you can redistribute it and/or
+	modify it under the terms of the GNU Lesser General Public
+	License as published by the Free Software Foundation; either
+	version 2.1 of the License, or (at your option) any later version.
+
+	This library is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+	Lesser General Public License for more details.
+
+	You should have received a copy of the GNU Lesser General Public
+	License along with this library; if not, write to the Free Software
+
+*/
 // ==UserScript==
-// @name          Xpath
+// @name          In-browser Meta Metadata Authoring Tool
 // @namespace     http://logiclord.com
-// @description   Use this script to generate xPath.
+// @description   In-browser Meta Metadata Authoring Tool
 // @include       *
 // ==/UserScript==
 
@@ -12347,16 +12365,22 @@ var elementInspector = {
 	}
 }
 
+
+
 /*
  * Onload procedures
- *
  */
 
 $(document).ready( function () {
 
-	// chrome bug
+    /// <summary>
+    /// Global JS object to maintain mmd. It can be directly used with JSON.stringify to get mmd in JSON format. 
+	/// </summary>
+    var rootMMD = {};
 
-	var rootMMD = {};
+    /// <summary>
+    /// Global list of custom Attributes. This is used in multiple places including loading UI and Autosuggest in Custom Attribute window.
+    /// </summary>
 	var customAttributeData = [
 	"Hint",
 	"RegexFilter",
@@ -12381,75 +12405,123 @@ $(document).ready( function () {
 	"field_parser"
 	];
 
+    /// This statement adds all required HTML content in Page.
 	$('body').prepend(' <div id="outerBox"> <div id="customAttributeBox" callerId="" > <form id="customAttributeForm"> <table id="customAttributeTable" width="100%" class="ui-widget ui-widget-content"> <thead> <tr class="ui-widget-header "> <td></td> <th>Attribute</th> <th>Value</th> </tr> </thead> </table> </form> </div> <div class="mmdMessage"> </div> <div class="xpathEvaluator" title="MMD Creator" > <span id="mmdTree"> <b style="font-size: 13px">MMD Tags</b> <span style="position:absolute; right:10px; width:25%; height:auto;" > <input type="button" id="Load_button" value="Load" style="width: 48%; ;left:5px" /> <input type="button" id="Generate_button" value="Generate" style="width: 49%; right:5px" /> </span> <br/> <table width="100%" border="0" cellpadding="1" id="xpathFields"> <tr> <td>Name</td> <td> <input type="text" id="mmdName" size="20"/> </td> <td>Selector</td> <td> <input type="text" id="selectorURL" size="20"/> </td> </tr> </table> <table id="mmdTable" width="100%" class="ui-widget ui-widget-content"> <thead> <tr class="ui-widget-header "> <th>&nbsp;</th> <th>Name</th> <th>Xpath</th> <th>FieldType</th> <th>Comment</th> <th>Type</th> <th>&nbsp;</th> </tr> </thead> <tr id="bottomAddButton"> <td colspan="7" align="center"> <br> <input type="button" id="Add_node_button" value="+" style="width: 30%" class="modifiedCursor" /> </td> </tr> </table> </span> <br/> <br/> <table width="100%" border="0" cellpadding="1" id="xpathFields"> <tr> <td>Validate</td> <td> <input type="text" id="xpath" name="xpath" size="50"/> </td> <td valign="center"> <input type="button" value="Validate" id="val_button"/> </td> </tr> <tr> <td>Generated</td> <td> <input type="text" id="result" value="" size="50" style="display: block"/> <label> </label> </td> <td valign="center"> <input type="button" id="cancel_button" value="Cancel" /> </td> </tr> </table> </div> </div>');
 
+    /// sets the value of URL selector to url of the current page.
 	$("#selectorURL").val($(location).attr('href'));
+    
 
-	function loadInUI(currentNode,parent) {
+    /// <summary>
+    /// This merthod is responsible for loading a given mmd from object to UI. Initially we pass 2 parameters 
+    /// </summary>
+    /// <param name="currentNode">Object containing Field Tags at a particular level</param>
+    /// <param name="parent">ID of parent and "" signifies that it has root as its parent e.g. loadInUI(data["kids"],"") </param>
 
-		//alert("\n\n\n\nCalled with parent :"+parent+"\n\n\n\n\n\n"+JSON.stringify(currentNode));
+	function loadInUI(currentNode, parent) {
+        
+        // number of Field Tags at current level
 		var count = currentNode.length;
 
 		for( var i = 0 ; i < count ; i++ ) {
+
+            // To store ith Field Tag object at current level
 			var content = null;
 			var tagType ;
 			var name , type ,xPath ,comment, customAtt;
 
-			if(currentNode[i]["scalar"]!=undefined) {
+            // Identify Type of Field Tag object 
+			if(currentNode[i]["scalar"]!=undefined) 
+            {
 				content = currentNode[i]["scalar"];
 				tagType = "Scalar";
-			} else if(currentNode[i]["collection"]!=undefined) {
+			} 
+            else if(currentNode[i]["collection"]!=undefined)
+            {
 				content = currentNode[i]["collection"];
 				tagType = "Collection";
-			} else if(currentNode[i]["composite"]!=undefined) {
+			} 
+            else if(currentNode[i]["composite"]!=undefined) 
+            {
 				content = currentNode[i]["composite"];
 				tagType = "Composite";
-			} else {
+			} 
+            else 
+            {
 				alert("Invalid Object - Unable to load in UI");
 				return;
 			}
 
+            // Every one is identified by an ID which is set to Timestamp at which it is created.
+            // Getting current timestamp
 			var currentID = new Date();
 
+            // Fill in all standard field attributes is they exists
 			name = content["name"];
 			type = content["type"]==undefined ? "" : content["type"];
 			xPath = content["xpath"]==undefined ? "" : content["xpath"];
 			comment = content["comment"]==undefined ? "" : content["comment"];
+
+            // Check existance of custom attributes using global list object customAttributeData
 			customAtt = loadCustomAttributes(content);
+
+            // Add node with all required field. true as 3rd parameter helps in identifying call type. 
 			AddNode(name,parent,true,type,xPath,comment,tagType,customAtt,currentID);
 
-			if(content["kids"]!=undefined) {
+            // If ith Field Tag has kids then make a recursive call for all kids of ith Field tag.
+			if(content["kids"]!=undefined)
+             {
 				currentID = currentID.getTime();
-				loadInUI(content["kids"],currentID);
+                // Calling recursively by incrementing level and ID for parent.			
+            	loadInUI(content["kids"],currentID);
 			}
 		}
 
 	}
 
-	/// Extract customAttributes to load into UI
+	
+    /// <summary>
+    /// Extract customAttributes to load into UI for passed object. It implicitly uses  global list object customAttributeData
+    /// </summary>
+    /// <param name="content">Object containing Field Tags at a particular level whose custom attributes are to be loaded</param>
+    /// <returns> A string containg custom Attributes in standard format i.e. Attribute1:Value1,Attribute2:Value2 </returns>
 	function loadCustomAttributes(content) {
-		var customAtt = "" ;
+		var customAtt = " " ;
 		var count = customAttributeData.length;
 
 		for(var i=0; i<count; i++) {
 
 			if(content[customAttributeData[i]]!=undefined) {
-				customAtt=customAttributeData[i]+":"+content[customAttributeData[i]];
+				customAtt =  customAtt.trim() + customAttributeData[i]+":"+content[customAttributeData[i]]+",";
 			}
 		}
 
-		return customAtt;
+		return customAtt.slice(0,-1) ;
 	}
+
+
+
+
+    /// <summary>
+    /// This method maps UI to JS object. UI is identified by JQuery selector object. This is a recursive method.
+    /// </summary>
+    /// <param name="selectedElements">JQuery Object which needs to be converted to corresponding JS Object</param>
+    /// <returns>Created JS object</returns>
 
 	function BuildMMD(selectedElements) {
 
-		/// Object for this recursive call
+		// Object for this recursive call
 		var curMMD = new Array();
 
+        // Identify Parent for current set. Parent must be common.
 		var childOfValue = selectedElements.attr("childOf");
+
+        // Number of elements at and below this level
 		var elementSize = selectedElements.size() ;
 
-		for( var i = 0 ; i < elementSize ; i++ ) {
+		for( var i = 0 ; i < elementSize ; i++ ) 
+        {
+            // Fill in all required details.
 
 			var content = selectedElements.children().next();
 			var tagType = content.next().next().html();
@@ -12458,7 +12530,10 @@ $(document).ready( function () {
 			var generatedXpath = content.next().html();
 			var comment = content.next().next().next().html();
 
-			if(tagType=="Scalar") {
+            // If Field Tag is Scalar
+			if(tagType=="Scalar")
+             {
+                // Build scalar object 
 				var myScalar = {};
 				var myScalar_wrapper = {};
 				myScalar["name"]=name;
@@ -12468,18 +12543,26 @@ $(document).ready( function () {
 
 				var pastCustomAttributes = 	selectedElements.attr("customAttrib");
 
-				//alert("value of pastattribs::"+pastCustomAttributes +"::");
-				if(pastCustomAttributes!=undefined && pastCustomAttributes!="") {
+				// Fill custom attributes using standard format. 
+				if(pastCustomAttributes!=undefined && pastCustomAttributes!="") 
+                {
 					pastCustomAttributes = pastCustomAttributes.split(",");
-					for(var ip=0; ip<pastCustomAttributes.length ;ip++) {
+					for(var ip=0; ip<pastCustomAttributes.length ;ip++) 
+                    {
 						var temp = pastCustomAttributes[ip].split(":");
 						myScalar[temp[0]]=temp[1];
 					}
 				}
 
 				myScalar_wrapper["scalar"]=myScalar;
+                
+                // Push it to mmd object of current level i.e. in curMMD
 				curMMD.push(myScalar_wrapper);
-			} else if(tagType=="Collection") {
+			}
+            // If Field Tag is Collection
+             else if(tagType=="Collection") 
+             {
+                // Build collection object 
 				var collection_field_wrapper = {};
 				var collection_field = {};
 				collection_field["name"]=name;
@@ -12489,30 +12572,45 @@ $(document).ready( function () {
 
 				var pastCustomAttributes = 	selectedElements.attr("customAttrib");
 
-				if(pastCustomAttributes!=undefined && pastCustomAttributes!="") {
+				if(pastCustomAttributes!=undefined && pastCustomAttributes!="")
+                {
 					pastCustomAttributes = pastCustomAttributes.split(",");
-					for(var ig=0; ig<pastCustomAttributes.length ;ig++) {
+					for(var ig=0; ig<pastCustomAttributes.length ;ig++)
+                     {
 						var temp = pastCustomAttributes[ig].split(":");
 						collection_field[temp[0]]=temp[1];
 					}
 				}
 				collection_field["kids"] = new Array();
 
-				if(selectedElements.next().attr("childOf") != childOfValue && selectedElements.next().attr("id")!="bottomAddButton") {
-
+                // Check if it has any kids or not
+				if(selectedElements.next().attr("childOf") != childOfValue && selectedElements.next().attr("id")!="bottomAddButton") 
+                {
+                    // if kids found accumulate ui to create a JQuery Object 
 					var caller = 	"<tr id=\""+selectedElements.next().attr('id')+"\" childOf=\""+selectedElements.next().attr('childOf')+"\" >"+selectedElements.next().html()+"</tr>";
 					selectedElements = selectedElements.next();
 
-					while(selectedElements.next().attr("childOf")!= undefined && selectedElements.next().attr("childOf") != childOfValue && selectedElements.next().attr("id")!="bottomAddButton") {
+                    // Loop till you don't reach child of value of current level or you reach bottom + button row 
+					while(selectedElements.next().attr("childOf")!= undefined && selectedElements.next().attr("childOf") != childOfValue && selectedElements.next().attr("id")!="bottomAddButton") 
+                    {
 						caller = caller + "<tr id=\""+selectedElements.next().attr('id')+"\" childOf=\""+selectedElements.next().attr('childOf')+"\" >"+selectedElements.next().html()+"</tr>";
 						selectedElements= selectedElements.next();
 
 					}
+                    // make recursive call for next level i.e. for all descendents  
 					collection_field["kids"] = BuildMMD($(caller));
 				}
+
 				collection_field_wrapper["collection"]=collection_field;
+
+                // Push it to mmd object of current level i.e. in curMMD
 				curMMD.push(collection_field_wrapper);
-			} else if(tagType=="Composite") {
+
+			} 
+            // If Field Tag is Composite
+            else if(tagType=="Composite")
+             {
+                // Build Composite object 
 				var composite_field_wrapper = {};
 				var composite_field = {};
 				composite_field["name"]=name;
@@ -12522,9 +12620,11 @@ $(document).ready( function () {
 
 				var pastCustomAttributes = 	selectedElements.attr("customAttrib");
 
-				if(pastCustomAttributes!=undefined && pastCustomAttributes!="") {
+				if(pastCustomAttributes!=undefined && pastCustomAttributes!="")
+               {
 					pastCustomAttributes = pastCustomAttributes.split(",");
-					for(var ig=0; ig<pastCustomAttributes.length ;ig++) {
+					for(var ig=0; ig<pastCustomAttributes.length ;ig++) 
+                    {
 						var temp = pastCustomAttributes[ig].split(":");
 						composite_field[temp[0]]=temp[1];
 					}
@@ -12532,145 +12632,214 @@ $(document).ready( function () {
 
 				composite_field["kids"] = new Array();
 
-				if(selectedElements.next().attr("childOf") != childOfValue && selectedElements.next().attr("id")!="bottomAddButton") {
-
+                 // Check if it has any kids or not
+				if(selectedElements.next().attr("childOf") != childOfValue && selectedElements.next().attr("id")!="bottomAddButton") 
+                {
+                    // if kids found accumulate ui to create a JQuery Object 
 					var caller = 	"<tr id=\""+selectedElements.next().attr('id')+"\" childOf=\""+selectedElements.next().attr('childOf')+"\" >"+selectedElements.next().html()+"</tr>";
 					selectedElements = selectedElements.next();
 
-					while(selectedElements.next().attr("childOf")!= undefined && selectedElements.next().attr("childOf") != childOfValue && selectedElements.next().attr("id")!="bottomAddButton") {
+                    // Loop till you don't reach child of value of current level or you reach bottom + button row 
+					while(selectedElements.next().attr("childOf")!= undefined && selectedElements.next().attr("childOf") != childOfValue && selectedElements.next().attr("id")!="bottomAddButton") 
+                    {
 
 						caller = caller + "<tr id=\""+selectedElements.next().attr('id')+"\" childOf=\""+selectedElements.next().attr('childOf')+"\" >"+selectedElements.next().html()+"</tr>";
 						selectedElements= selectedElements.next();
 
 					}
+                    // make recursive call for next level i.e. for all descendents  
 					composite_field["kids"] = BuildMMD($(caller));
 				}
+
 				composite_field_wrapper["composite"] = composite_field;
+
+                // Push it to mmd object of current level i.e. in curMMD
 				curMMD.push(composite_field_wrapper);
+
 			}
+            // Move on to next Field Tag at current level
 			selectedElements= selectedElements.next();
 		}
 
+        // return JS object
 		return curMMD;
 	}
 
+
+    /// <summary>
+    /// This method add Field Tags in UI. It is used by + button and load UI. It creates ui based on availability of data in UI and passed parameters.
+    /// </summary>
+    /// <param name="name"> Name of Field Tag (required)</param>
+    /// <param name="parent"> ID of parent </param>
+    /// <param name="useData"> true/false depending on all other parameters to its right have data or not</param>
+    /// <param name="type"> type of Field Tag e.g. collection type, etc </param>
+    /// <param name="xPath"> xPath of Field Tag</param>
+    /// <param name="tagType"> Scalar/Collection/Composite </param>
+    /// <param name="customAtt"> Custom attributes in standard format </param>
+    /// <param name="currentID"> ID of current Field Tag</param>
 	function   AddNode(name,parent,useData,type,xPath,comment,tagType,customAtt,currentID) {
 
 		var d = new Date();
-		if(useData==true) {
+
+        // If currentID is passed override d
+		if(useData==true) 
+        {
 			d = currentID;
 		}
+
+        // initialize button handlers with ID of Field Tag
 		var AddID = "Add_node_button"+d.getTime();
 		var delID = "deleteHandler"+d.getTime();
 		var cusID  = "customHandler"+d.getTime();
-		d=d.getTime();
+		d = d.getTime();
 
-		if(checkDuplicateNames(name,parent )) {
-
+        // Check whether a Field Tag with passed name already exists under passed parent 
+		if(checkDuplicateNames(name,parent ))
+        {
+            // to hold html of row in UI
 			var newRow ;
 			if(useData==true)
 				newRow = $("<tr id=\""+d+"\" customAttrib=\""+customAtt+"\" childOf=\""+parent+"\" > <td > <span id=\""+delID+"\" class=\"crossImage\"> &nbsp;&nbsp;&nbsp; </span>&nbsp; <span id=\""+AddID+"\" class=\"addImage\">&nbsp;&nbsp;&nbsp; </span> </td> <td class=\"nameBasedEditor\">"+ name +"</td> <td class=\"textBasedEditor\">"+ xPath +"</td> <td class=\"fieldTagBasedEditor\">"+tagType+"</td> <td class=\"textBasedEditor\">"+comment+"</td> <td class=\"typeBasedEditor\">"+type+"</td> <td class=\"customAttribute\" id=\""+cusID+"\" > &nbsp;&nbsp;&nbsp;&nbsp;</td> </tr>");
 			else
 				newRow = $("<tr id=\""+d+"\" customAttrib =\"\" childOf=\""+parent+"\"   ><td > <span id=\""+delID+"\" class=\"crossImage\"> &nbsp;&nbsp;&nbsp;  </span>&nbsp;<span  id=\""+AddID+"\" class=\"addImage\">&nbsp;&nbsp;&nbsp;   </span> </td><td class=\"nameBasedEditor\">"+name +"</td><td class=\"textBasedEditor\">"+$("#result").val()+"</td><td class=\"fieldTagBasedEditor\">Scalar</td><td class=\"textBasedEditor\">MyComment</td><td class=\"typeBasedEditor\">String</td><td class=\"customAttribute\" id=\""+cusID+"\" > &nbsp;&nbsp;&nbsp;&nbsp;</td></tr>");
 
+            // increase the size of main dialogue box.
 			$(".xpathEvaluator").dialog( "option", "minHeight",$(".xpathEvaluator").dialog( "option", "minHeight" )+10);
 
-			if(parent=="") {
+			if(parent=="") 
+            {
+                // add under root
 				$("#bottomAddButton").before(newRow);
-				//$("#mmdTable").prepend(newRow);   to add in begining
-			} else {
+			} 
+            else 
+            {
+                // add under passed parent
 				var tempPath = "#"+parent;
 				var cur = "#"+d;
 				$(tempPath).after(newRow);
 
+                // get left padding of parent
 				var str= $(tempPath).children("td").first().css("padding-left");
 
+                // indent right by 5px more then parent 
 				$(cur).children("td").first().css("padding-left",parseInt(str.substring(0, str.length - 2))+5);
 
 			}
 
+            // By default added row is Scalar hence + button is hidden
 			var tempAdd = "#"+AddID;
 			$(tempAdd).hide();
 
 		}
 
+        // convert to JQury selector string
 		AddID = "#"+AddID;
 		delID = "#" + delID;
 		cusID = "#" + cusID;
 
-		if(customAtt!=undefined && customAtt!="") {
-			/// Changing the Custom Attributes icon so that user should know presence of attributes
-			$(cusID).removeClass('customAttribute');
+        // Changing the Custom Attributes icon so that user should know presence of attributes
+		if(customAtt!=undefined && customAtt!="")
+        {
+            $(cusID).removeClass('customAttribute');
 			$(cusID).addClass('customAttributeChanged');
 		}
 
-		if(tagType!=undefined && tagType!="Scalar") {
-			/// since the loaded ui node is either collection or compositie we need to provide + button
+        // since the loaded ui node is either collection or compositie we need to provide + button
+		if(tagType!=undefined && tagType!="Scalar") 
+        {
 			$(AddID).show();
 		}
 
+        /// <summary>
+        /// Click handler for + button (if enabled). Recursively call Add  node to add newChild under current Field Tag (Passed by id)
+        /// </summary>
 		$(AddID).click( function() {
 			AddNode("newChild",$(this).parent().parent().attr("id"));
 		});
-		//Edition option
 
+
+		//Editing options
+
+
+        /// <summary>
+        /// Double click handler for editing type of Field Tag i.e. Scalar/Collection/Composite
+        /// </summary>
 		$(".fieldTagBasedEditor").dblclick( function() {
-
+            
+            // drop down for  Scalar/Collection/Composite
 			var tempHTML = "<select id=\"tempHTML\" ><option value=\"Scalar\" selected=\"selected\">Scalar</option><option value=\"Collection\">Collection</option><option value=\"Composite\">Composite</option></select>";
-			$(this).html(tempHTML);
+			// embed a drop down in row.
+            $(this).html(tempHTML);
 			$('#tempHTML').focus();
 
+            // Save on focus out
 			$('#tempHTML').focusout( function() {
-
 				var newValue = $('#tempHTML').val();
 
-				if(newValue!="Scalar") {
+                // depending on type enable or disable + button
+				if(newValue!="Scalar")
+                {
 					$('#tempHTML').parent().parent().find('span').last().show();
-				} else {
+				} 
+                else
+                {
 					$('#tempHTML').parent().parent().find('span').last().hide();
 				}
+
 				$('#tempHTML').parent().text(newValue);
 				$('#tempHTML').remove();
 
 			});
-		}
-		);
+		 });
 
-		//Edition option
+		/// <summary>
+        /// Double click handler for editing name of Field Tag 
+        /// </summary>
 		$(".nameBasedEditor").dblclick( function() {
 
 			var currentValue = $(this).text();
 			var tempHTML = "<input type=\"text\" id=\"tempHTML\" value=\""+currentValue+"\" size=\"12\"/>";
+
+            //embed a textbox in row
 			$(this).html(tempHTML);
 			$('#tempHTML').focus();
 
+            // save on focus out
 			$('#tempHTML').focusout( function() {
 
 				var newValue = $('#tempHTML').val();
 				var oldValue = $('#tempHTML').parent().parent().attr("id");
 
-				if(!checkDuplicateNames(newValue,$('#tempHTML').parent().parent().attr("childOf"))) {
+                // Check whether new name of already exists under current parent 
+				if(!checkDuplicateNames(newValue,$('#tempHTML').parent().parent().attr("childOf"))) 
+                {
 					newValue = oldValue;
 				}
+
 				// updating childs on the basis of name
 				//var selectorValue = 'tr[childOf="'+oldValue+'"]';
 				//$(selectorValue).attr("childOf",newValue);
 				// updating id
 				//$('#tempHTML').parent().parent().removeAttr('id');
 				//$('#tempHTML').parent().parent().attr("id",newValue);
-				$('#tempHTML').parent().text(newValue);
+				
+                $('#tempHTML').parent().text(newValue);
 				$('#tempHTML').remove();
 			});
 		}
 		);
 
-		//Edition option
+	    /// <summary>
+        /// A generic double click handler for editing text based attributes of Field Tag 
+        /// </summary>
 		$(".textBasedEditor").dblclick( function() {
 
 			var currentValue = $(this).text();
 			var tempHTML = "<input type=\"text\" id=\"tempHTML\" value=\""+currentValue+"\" size=\"12\"/>";
 			$(this).html(tempHTML);
 			$('#tempHTML').focus();
+
+            // save on focus out
 			$('#tempHTML').focusout( function() {
 
 				var newValue = $('#tempHTML').val();
@@ -12682,27 +12851,40 @@ $(document).ready( function () {
 		}
 		);
 
-		//Edition option
+	    /// <summary>
+        /// A double click handler for editing Scalar/collection/composite type of Field Tag 
+        /// </summary>
 		$(".typeBasedEditor").dblclick( function() {
 
 			// order of columns should be preserved
-			if($(this).prev().prev().text()!= "Scalar") {
+			if($(this).prev().prev().text()!= "Scalar") 
+            {
+                // in case of scalar it should be a drop down
 				var currentValue = $(this).text();
 				var tempHTML = "<input type=\"text\" id=\"tempHTML\" value=\""+currentValue+"\" size=\"12\"/>";
+
+                // embed drop down
 				$(this).html(tempHTML);
 				$('#tempHTML').focus();
+
+                // save on focus out
 				$('#tempHTML').focusout( function() {
 					var newValue = $('#tempHTML').val();
 					$('#tempHTML').parent().text(newValue);
 					$('#tempHTML').remove();
 
 				});
-			} else {
+			} 
+            else
+            {
+                // in case of collection or composite it should be a textbox
 				var tempHTML = "<select id=\"tempHTML\" ><option value=\"String\" selected=\"selected\">String</option><option value=\"ParsedURL\">ParsedURL</option><option value=\"Int\">Int</option></select>";
 
+                // embed text box
 				$(this).html(tempHTML);
 				$('#tempHTML').focus();
 
+                // save on focus out
 				$('#tempHTML').focusout( function() {
 
 					var newValue = $('#tempHTML').val();
@@ -12715,31 +12897,44 @@ $(document).ready( function () {
 		}
 		);
 
-		//Deletion option
+		/// <summary>
+        /// A Deletion handler (triggered on click event of X button) for deleting a Field Tag and all its descendents
+        /// </summary>
 		$(delID).click( function () {
 
-			var r=confirm("Are you sure you want to delete Field Tag with name : "+	$(this).parent().next().text());
-			if (r==true) {
-				//$('td[childOf='+$(this).parent().parent().attr("id")+']').remove();
+            // confirm deletion
+			var r = confirm("Are you sure you want to delete Field Tag with name : "+	$(this).parent().next().text());
+
+			if (r==true) 
+            {
 
 				var delTemp = $(this).parent().parent();
 				var delref = delTemp;
 				var marginReference = parseInt(delref.children("td").first().css("padding-left").substring(0, delref.children("td").first().css("padding-left").length - 2));
 
-				if(delTemp.next().attr("id")!="bottomAddButton" && marginReference < parseInt(delTemp.next().children("td").first().css("padding-left").substring(0, delTemp.next().children("td").first().css("padding-left").length - 2))) {
-
+                // check for existence of descendents.
+				if(delTemp.next().attr("id")!="bottomAddButton" && marginReference < parseInt(delTemp.next().children("td").first().css("padding-left").substring(0, delTemp.next().children("td").first().css("padding-left").length - 2))) 
+                {
+                    // delete all its decendents. Identified by childOf and indent
 					while(delTemp.next().attr("id")!="bottomAddButton" && marginReference < parseInt(delTemp.next().children("td").first().css("padding-left").substring(0, delTemp.next().children("td").first().css("padding-left").length - 2))) {
 
 						delTemp = delTemp.next();
 						delTemp.prev().remove();
 					}
 				}
+
+                // remove selected Field Tag
 				delTemp.remove();
 
 			}
-			// Tag deletion node to be created here
+		
 		});
-		// Custom Attribute options
+
+
+		/// <summary>
+        /// Custom attributes handler for manipulating custom attributes of a Field Tag
+        /// </summary>
+
 		$(cusID).click( function () {
 
 			/// customizing styles
@@ -12754,21 +12949,33 @@ $(document).ready( function () {
 
 			var mutex = 1 ;
 
-			/// Trying to capture position of cursor
+			/// Trying to capture position of cursor and position custom Attribute window at cursor.
 			$(document).mousemove( function (e) {
 				if(mutex) {
+                    // open custom attribute window
 					$("#customAttributeBox").dialog("option", {
 						position: [e.pageX, e.pageY-5]
 					});
 					mutex=0;
 				}
 			});
+
+            // loading custom attributes(if any) into custom attribute window 
+
+            // setting caller in custom attribute window
 			$( "#customAttributeBox" ).attr("callerId",$(this).parent().attr("id"));
+
+            // get list of custom attributes in standard format
 			var pastCustomAttributes = 	$(this).parent().attr("customAttrib");
-			if(pastCustomAttributes!="") {
+
+            // if not null
+			if(pastCustomAttributes!="") 
+            {
 				pastCustomAttributes = pastCustomAttributes.split(",");
 
-				for(var i=0; i<pastCustomAttributes.length ;i++) {
+                // filling using ',' as delimiter
+				for(var i=0; i<pastCustomAttributes.length ;i++) 
+                {
 					var temp = pastCustomAttributes[i].split(":");
 					customAttributeUI(temp[0],temp[1]);
 				}
@@ -12776,11 +12983,20 @@ $(document).ready( function () {
 		});
 	}
 
+    
+    /// <summary>
+    /// Event handler for onclick event of bottom + bar. Adds a new Field Tag with name:newNode under root
+    /// </summary>
 	$('#Add_node_button').click( function() {
 		AddNode("newNode","");
 	});
+
+    /// <summary>
+    /// Event handler for onclick event of validate button. Show results in a separate window
+    /// </summary>
 	$('#val_button').click( function () {
 
+        // get number of results for input Xpath to be validated
 		var result = xPath.validate($('#xpath').val());
 
 		if(result != 0 ) {
@@ -12792,11 +13008,15 @@ $(document).ready( function () {
 			try {
 				var resultValue="";
 				var thisNode = iterator.iterateNext();
+
+                // Accumulate results in resultValue 
 				while (thisNode) {
 					resultValue += "-- Result : "+ ind + " -- <br/>" + thisNode.textContent +"<br/>" ;
 					thisNode = iterator.iterateNext();
 					ind++;
 				}
+
+                // show results in windows box.
 				$(".mmdMessage").html(resultValue);
 				$(".mmdMessage").attr("title","Validated Results");
 				$( ".mmdMessage" ).dialog({
@@ -12816,33 +13036,45 @@ $(document).ready( function () {
 
 		}
 	});
+
+
+    /// <summary>
+    /// Event handler for onclick event of Load button.
+    /// </summary>
 	$('#Load_button').click( function() {
 
-		/// When we will have a working aervice for repository we will make this path dynamic
+		 /// When we will have a working aervice for repository we will make this path dynamic
 
-		
-		
 		 $.getJSON('http://localhost/mmd/load/mmd.php', function(data) {
 
-		 /// if we have a success clear UI and global object
+		 // if we have a success clear UI and global object
 		 rootMMD = {} ;
 
-		 /// Cleaning complete UI
+		 // Cleaning complete UI
 		 $("tr[childOf]").remove();
 
-		 /// setting name in UI
+		 // setting name in UI
 		 $("#mmdName").val(data["name"]);
 
-		 /// Restoring url in UI
+		 // Restoring url in UI
 		 $("#selectorURL").val(data["selector"]["url_path_tree"]);
 
+         // initiating object to ui procedure by calling for root
 		 loadInUI(data["kids"],"");
 
 		 });
 		
 	});
-	$('#Generate_button').click( function() {
 
+
+
+    /// <summary>
+    /// Event handler for onclick event of Generate button. Update rootMMD global object and shows generated mmd in JSON format in a separate window
+    /// </summary>
+	$('#Generate_button').click( function() {
+        
+        // Updating values in rootMMD
+        rootMMD = {};
 		var path = {};
 		rootMMD["parser"] = "xpath";
 		rootMMD["name"] = $("#mmdName").val();
@@ -12850,8 +13082,10 @@ $(document).ready( function () {
 		path["url_path_tree"] = $("#selectorURL").val();
 		rootMMD["selector"] = path;
 
+        // initiating ui to object procedure by calling for root
 		rootMMD["kids"]=  BuildMMD($("#mmdTable tr[childOf]"));
 
+        // show results in windows box.
 		$(".mmdMessage").text( JSON.stringify(rootMMD));
 		$(".mmdMessage").attr("title","JSON MMD");
 		$( ".mmdMessage" ).dialog({
@@ -12867,37 +13101,59 @@ $(document).ready( function () {
 		});
 
 	});
+
+
+    /// <summary>
+    /// Event handler for keyup event of result testbox. To validate and select appropriate section in page.
+    /// </summary>
 	$('#result').keyup( function() {
 		xPathValidation();
 		elementInspector.cleanUpElem();
 	});
+
+    /// <summary>
+    /// Event handler for onlcik event of cancel button. To cancel current selection in page.
+    /// </summary>
 	$('#cancel_button').click( function() {
 		elementInspector.cleanUpElem();
 	});
+
+    // initializing inspector object
 	elementInspector.init(document);
 
 	elementInspector.onselectstart = function(node) {
 		$('#result').val(xPath.generate(node, document));
 		xPathValidation();
 	}
+
 	elementInspector.oncancel = function(node) {
 
 	}
+
 	elementInspector.onchange = function(node) {
 
 	}
+
+    /// JQuery UI dialogue definition for xpathEvaluator which is main dialogue box that contains everything in UI.
 	$( ".xpathEvaluator" ).dialog({
 		minHeight: 240,
 		minWidth: 550,
 		dialogClass: 'main_formatting'
 	});
+            
+    /// <summary>
+    /// This checks whether a Field Tag with passed name already exists under passed ID 
+    /// </summary>
+    /// <param name="name">Name of current Field Tag to be checked </param>
+    /// <param name="parent">Id of parent</param>
+    /// <returns>true/false</returns>
+	function checkDuplicateNames(name, parent) {
 
-	// to be chnaged
-	function checkDuplicateNames(name,parent) {
-
+        // get list of all the immediate childs of parent
 		var temp = $("#mmdTable tr").filter("tr[childof="+parent+"]");
 		var count = temp.size();
 
+        // check presence of name by traversing
 		for(var i=0; i <count; i++) {
 
 			if(temp.children().first().next().text() == name) {
@@ -12911,30 +13167,46 @@ $(document).ready( function () {
 
 	}
 
-	// Custom attribute ui row adder
+
+    /// <summary>
+    /// This method add a row in custom attribute window
+    /// </summary>
+    /// <param name="attrName">Attribute name(required)</param>
+    /// <param name="attrValue">Attribute value</param>
 
 	function customAttributeUI(attrName,attrValue) {
-
+        
+        // Timestamp is used as identifier
 		var d = new Date();
 		var crosstemp = "customCrossButton"+ d.getTime();
 		var autoId = "auto"+ d.getTime();
 
+        // Append row in window
 		$( "#customAttributeTable" ).append('<tr class="customTemp" ><td > <span  class="crossImage" id="'+crosstemp+'" > &nbsp;&nbsp;&nbsp;  </span></td><td id="'+autoId+'" >'+attrName+'</td><td class="valueBasedEditor" >'+attrValue+'</td></tr>');
 
 		crosstemp = "#" +crosstemp;
 		autoId = "#" + autoId;
-		// Custom attribute deletion
+	
+        /// <summary>
+        /// Event handler for onclick event of deletion (X) button.
+        /// </summary>
 		$(crosstemp).click( function() {
 			$(this).parent().parent().remove();
 		});
-		//Edition option
+
+        /// <summary>
+        /// Event handler for double click event for editing name of attribute.        
+        /// </summary>
 		$(autoId).dblclick( function() {
 
 			var currentValue = $(this).text();
 			var tempHTML = "<input type=\"text\" id=\"tempHTML\" value=\""+currentValue+"\" size=\"14\"/>";
+
+            // embed textbox
 			$(this).html(tempHTML);
 			$('#tempHTML').focus();
 
+            // add autosuggest by JQuery UI
 			$('#tempHTML').autocomplete({
 				source: customAttributeData,
 				select: function(event, ui) {
@@ -12942,11 +13214,13 @@ $(document).ready( function () {
 					$('#tempHTML').parent().text(newValue);
 					$('#tempHTML').remove();
 				},
+                // to show all when textbox is blank
 				minLength: 0,
 			});
 
 			$(".ui-autocomplete").css("font-size","12px");
 
+            // focus out event to save attribute name
 			$('#tempHTML').focusout( function() {
 				var newValue = $('#tempHTML').val();
 				$('#tempHTML').parent().text(newValue);
@@ -12956,16 +13230,21 @@ $(document).ready( function () {
 		}
 		);
 
+
+        /// <summary>
+        /// Event handler for double click event for editing value of attribute.        
+        /// </summary>
 		$(".valueBasedEditor").dblclick( function() {
 
 			var currentValue = $(this).text();
 			var tempHTML = "<input type=\"text\" id=\"tempHTML\" value=\""+currentValue+"\" size=\"14\"/>";
-			$(this).html(tempHTML);
+			
+            // embed textbox
+            $(this).html(tempHTML);
 			$('#tempHTML').focus();
 
 			$('#tempHTML').focusout( function() {
 				var newValue = $('#tempHTML').val();
-
 				$('#tempHTML').parent().text(newValue);
 				$('#tempHTML').remove();
 
@@ -12974,6 +13253,7 @@ $(document).ready( function () {
 		);
 	}
 
+    /// JQuery UI dialogue definition for customAttributeBox which is dialogue box that contains attribute name-value pairs of all Field Tags in UI.
 	$( "#customAttributeBox" ).dialog({
 		autoOpen: false,
 		height: 400,
@@ -12992,11 +13272,13 @@ $(document).ready( function () {
 			text: "Ok",
 			className: 'saveButtonClass',
 			click: function() {
-
+                
+                // save custom attributes to caller Field Tag
 				var current = $("#customAttributeTable").find("tr.customTemp");
 				var customAttribCount = current.size();
-				var temp ="";
+				var temp = "";
 
+                // create custom attributes in standard format
 				while(customAttribCount) {
 					if(temp!="") {
 						temp = temp + "," ;
@@ -13005,17 +13287,23 @@ $(document).ready( function () {
 					customAttribCount--;
 					current = current.next();
 				}
+
 				var identifyCaller =  "#" + $("#customAttributeBox").attr("callerId");
-				$(identifyCaller).attr("customAttrib",temp);
+				
+                // save attributes
+                $(identifyCaller).attr("customAttrib",temp);
 
-				//alert($(identifyCaller).children().last().html());
 
-				if( temp != "" ) {
+				if( temp != "" )
+                {
+                   // restore custom attribute button if that field tag has no attribute name-value pairs
 					$(identifyCaller).children().last().removeClass('customAttribute');
 					$(identifyCaller).children().last().addClass('customAttributeChanged');
 
-				} else {
-
+				}
+                else 
+                {
+                    // change custom attribute button if that field tag has some attribute name-value pairs
 					$(identifyCaller).children().last().addClass('customAttribute');
 					$(identifyCaller).children().last().removeClass('customAttributeChanged');
 				}
@@ -13026,9 +13314,9 @@ $(document).ready( function () {
 		}
 		],
 		close: function() {
+            // restore css
 			$(".ui-widget-overlay").css("opacity","0.7");
 			$(".customTemp").remove();
-			// Close code here (incidentally, same as Cancel code)
 		}
 	});
 
