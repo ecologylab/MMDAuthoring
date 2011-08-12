@@ -17,6 +17,7 @@ var elementInspector = {
 	controlsHTML : ''+
 	'<div class="inspectorControls" id="inspectorControlsID">' +
 	'<label id="inspectorTagNameID">&nbsp;</label>' +
+	'<div>Add</div>' +
 	'<div>Up</div>' +
 	'<div>Down</div>' +
 	'<div>Prev</div>' +
@@ -60,13 +61,12 @@ var elementInspector = {
 		$('#inspectorControlsID div', _this.currentDoc).click( function() {
 			_this.traversing($(this).html());
 		});
-
-        // uncomment to disbale right click menu
-		//disable context menu
-		/*    _this.currentDoc.body.oncontextmenu = function() {
-		 return false;
-		 }
-		 */
+		
+		//To disbale right click menu
+		$(document).bind("contextmenu",function(e){  
+        return false;  
+  		  });  
+		
 	},
 	markElem : function(elem) {
 		this.showControls(elem);
@@ -185,13 +185,22 @@ var elementInspector = {
 				_this.cancel();
 				return;
 		}
-
-		this.currentElem = element;
-		this.markElem(this.currentElem);
-
-		// updating xpath results while navigating
-		$('#result').val(xPath.generate(this.currentElem, document));
-		xPathValidation();
+		
+		// If not Add event update XPath and element
+		if(direction!='Add')
+		{
+			this.currentElem = element;
+			this.markElem(this.currentElem);
+	
+			// updating xpath results while navigating
+			$('#result').val(xPath.generate(this.currentElem, document));
+			xPathValidation();
+		}
+		else
+		{
+			$('#Add_node_button').click();
+		}
+		
 
 	},
 	checkNeighbours : function() {

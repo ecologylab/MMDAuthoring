@@ -14,11 +14,13 @@
 		<link rel="stylesheet" type="text/css" href="css/jquery-ui-1.8.13.custom.css" media="screen">
 
 		<script type="text/javascript" src="js/ui.js"></script>
-	
 	</head>
 	<body>
-<!--
-		<div id="outerBox">
+
+		<!--
+	<div id="activate">
+	</div>
+	<div id="outerBox">   
 			<div id="customAttributeBox"  callerId="" >
 				<form id="customAttributeForm">
 					<table id="customAttributeTable" width="100%" class="ui-widget ui-widget-content">
@@ -39,11 +41,11 @@
 				<span id="mmdTree">
 					<b style="font-size: 13px">MMD Tags</b>
 					<span style="position:absolute; right:10px; width:25%; height:auto;" >
-						<input   type="button" id="Load_button" value="Load" style="width: 48%; ;left:5px" />
-						<input   type="button" id="Generate_button" value="Generate" style="width: 49%; right:5px" />
+						
+						<input   type="button" id="Generate_button" value="Generate" style="width: 80%; right:10px;" />
 					</span>
 					<br/>
-
+<br/>
 					<table width="100%" border="0" cellpadding="1" id="xpathFields">
 						<tr>
 							<td>Name</td>
@@ -76,33 +78,32 @@
 						</tr>
 					</table>
 				</span>
-				<br/>
-				<br/>
 
-				<table width="100%" border="0" cellpadding="1" id="xpathFields">
+
+				<table width="500px" border="0" cellpadding="1" id="xpathFields">
 					<tr>
-						<td>Validate</td>
-						<td>
-						<input type="text" id="xpath" name="xpath" size="50"/>
-						</td>
-						<td valign="center">
-						<input type="button" value="Validate" id="val_button"/>
-						</td>
-					</tr>
-					<tr>
-						<td>Generated</td>
+						<td>XPath</td>
 						<td>
 						<input type="text" id="result" value="" size="50" style="display: block"/>
 						<label>
 						</label>
 						</td>
-						<td valign="center">
-						<input type="button" id="cancel_button" value="Cancel"  />
-						</td>
 					</tr>
+                    <tr > &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+						<td align="center" colspan="2"><input type="button" id="cancel_button" value="Cancel" />
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+						<input   type="button" id="Load_button" value="Load" />
+						 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+						<input type="button" value="Test XPath" id="val_button" />
+                        </td>
+                    
+					</tr>
+					
 				</table>
 			</div>
 		</div>
+        
+        
 		<!-- after this -->
 		<div>
 			<div>
