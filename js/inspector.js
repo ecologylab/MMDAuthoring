@@ -7,6 +7,29 @@ function xPathValidation() {
 		$('#result').next().text('Incorrect xPath');
 	} else {
 		$('#result').next().text('Found elements: ' + xPathResult);
+		//alert(" Number of results "+result);
+				var inputPath = document.getElementById("result").value;
+				var iterator = document.evaluate(inputPath , document , null, XPathResult.ANY_TYPE,null);
+				var ind = 1;
+				try {
+					var resultValue="";
+					var thisNode = iterator.iterateNext();
+	
+	                // Accumulate results in resultValue 
+					while (thisNode) {
+						resultValue += ind + "--" + thisNode.textContent +"<br/>" ;
+						thisNode = iterator.iterateNext();
+						ind++;
+						if(ind > 5) 
+						break;
+					}
+	
+	                // show results in preview
+					$("#previewBox").html(resultValue);
+				
+				} catch (e) {
+					alert( 'Error: Document tree modified during iteration ' + e );
+				}
 	}
 }
 

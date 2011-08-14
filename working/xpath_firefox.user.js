@@ -8787,6 +8787,7 @@ function jqescape(str) {
 }
 
 // inspector.js starts
+
 ///<summary>
 /// Validates XPath in #result textbox and update label. 
 ///</summary>
@@ -8796,6 +8797,29 @@ function xPathValidation() {
 		$('#result').next().text('Incorrect xPath');
 	} else {
 		$('#result').next().text('Found elements: ' + xPathResult);
+		//alert(" Number of results "+result);
+				var inputPath = document.getElementById("result").value;
+				var iterator = document.evaluate(inputPath , document , null, XPathResult.ANY_TYPE,null);
+				var ind = 1;
+				try {
+					var resultValue="";
+					var thisNode = iterator.iterateNext();
+	
+	                // Accumulate results in resultValue 
+					while (thisNode) {
+						resultValue += ind + "--" + thisNode.textContent +"<br/>" ;
+						thisNode = iterator.iterateNext();
+						ind++;
+						if(ind > 5) 
+						break;
+					}
+	
+	                // show results in preview
+					$("#previewBox").html(resultValue);
+				
+				} catch (e) {
+					alert( 'Error: Document tree modified during iteration ' + e );
+				}
 	}
 }
 
@@ -9031,6 +9055,7 @@ var elementInspector = {
 
 
 
+
 /*
  * Onload procedures
  */
@@ -9078,7 +9103,7 @@ $(document).ready(function () {
 		];
 	
 	    /// This statement adds all required HTML content in Page.
-		$('body').prepend('  <div id="outerBox"> <div id="customAttributeBox" callerId="" > <form id="customAttributeForm"> <table id="customAttributeTable" width="100%" class="ui-widget ui-widget-content"> <thead> <tr class="ui-widget-header "> <td></td> <th>Attribute</th> <th>Value</th> </tr> </thead> </table> </form> </div> <div class="mmdMessage"> </div> <div class="xpathEvaluator" title="MMD Creator" > <span id="mmdTree"> <b style="font-size: 13px">MMD Tags</b> <span style="position:absolute; right:10px; width:25%; height:auto;" > <input type="button" id="Generate_button" value="Generate" style="width: 80%; right:10px;" /> </span> <br/> <br/> <table width="100%" border="0" cellpadding="1" id="xpathFields"> <tr> <td>Name</td> <td> <input type="text" id="mmdName" size="20"/> </td> <td>Selector</td> <td> <input type="text" id="selectorURL" size="20"/> </td> </tr> </table> <table id="mmdTable" width="100%" class="ui-widget ui-widget-content"> <thead> <tr class="ui-widget-header "> <th>&nbsp;</th> <th>Name</th> <th>Xpath</th> <th>FieldType</th> <th>Comment</th> <th>Type</th> <th>&nbsp;</th> </tr> </thead> <tr id="bottomAddButton"> <td colspan="7" align="center"> <br> <input type="button" id="Add_node_button" value="+" style="width: 30%" class="modifiedCursor" /> </td> </tr> </table> </span> <table width="500px" border="0" cellpadding="1" id="xpathFields"> <tr> <td>XPath</td> <td> <input type="text" id="result" value="" size="50" style="display: block"/> <label> </label> </td> </tr> <tr > &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <td align="center" colspan="2"><input type="button" id="cancel_button" value="Cancel" /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <input type="button" id="Load_button" value="Load" /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <input type="button" value="Test XPath" id="val_button" /> </td> </tr> </table> </div> </div> ');
+		$('body').prepend('<div id="outerBox"> <div id="customAttributeBox" callerId="" > <form id="customAttributeForm"> <table id="customAttributeTable" width="100%" class="ui-widget ui-widget-content"> <thead> <tr class="ui-widget-header "> <td></td> <th>Attribute</th> <th>Value</th> </tr> </thead> </table> </form> </div> <div class="mmdMessage"> </div> <div class="xpathEvaluator" title="MMD Creator" > <span id="mmdTree"> <b style="font-size: 13px">MMD Tags</b> <span style="position:absolute; right:10px; width:25%; height:auto;" > <input type="button" id="Generate_button" value="Generate" style="width: 80%; right:10px;" /> </span> <br/> <br/> <table width="100%" border="0" cellpadding="1" id="xpathFields"> <tr> <td>Name</td> <td> <input type="text" id="mmdName" size="20"/> </td> <td>Selector</td> <td> <input type="text" id="selectorURL" size="20"/> </td> </tr> </table> <table id="mmdTable" width="100%" class="ui-widget ui-widget-content"> <thead> <tr class="ui-widget-header "> <th>&nbsp;</th> <th>Name</th> <th>Xpath</th> <th>FieldType</th> <th>Comment</th> <th>Type</th> <th>&nbsp;</th> </tr> </thead> <tr id="bottomAddButton"> <td colspan="7" align="center"> <br> <input type="button" id="Add_node_button" value="+" style="width: 30%" class="modifiedCursor" /> </td> </tr> </table> </span> <table width="600px" border="0" cellpadding="1" id="xpathFields"> <tr > <td align="left" colspan="2">&nbsp;&nbsp;&nbsp;&nbsp;<input type="button" id="reset_button" value="Reset" /> &nbsp;&nbsp;&nbsp;&nbsp; <input type="button" id="cancel_button" value="Cancel" /> &nbsp;&nbsp;&nbsp;&nbsp; <input type="button" id="Load_button" value="Load" /> &nbsp;&nbsp;&nbsp;&nbsp; <input type="button" value="Test XPath" id="val_button" />&nbsp;&nbsp; </td> <td rowspan="2" align="center" valign="top" ><span style="font-weight:bold;">Preview</span><br/><span id="previewBox"></span> </td> </tr> <tr valign="top"> <td>XPath</td> <td> <input type="text" id="result" value="" size="50" style="display: block"/> <label> </label> </td> </tr> </table> </div> </div> ');
 		
 		
 	    /// sets the value of URL selector to url of the current page.
@@ -9099,9 +9124,18 @@ $(document).ready(function () {
 		    }
 		    
 		});
-	
-	
 		
+		/// <summary>
+	    /// Triggers when user tried to edit any field in a row. At present updates XPath ('#result') textbox
+	    /// </summary>
+	    /// <param name="currentRow">JQuery Object containing of that row </param>
+		function  onRowSelect(currentRow)
+		{
+			// updating value of textbox containing XPath
+			$("#result").val(currentRow.children().next().next().html());
+		}
+	
+	
 	    /// <summary>
 	    /// This merthod is responsible for loading a given mmd from object to UI. Initially we pass 2 parameters 
 	    /// </summary>
@@ -9444,6 +9478,10 @@ $(document).ready(function () {
 	        /// Click handler for + button (if enabled). Recursively call Add  node to add newChild under current Field Tag (Passed by id)
 	        /// </summary>
 			$(AddID).click( function() {
+				
+				//Trigger onRowSelect method
+	            onRowSelect($(this).parent());
+	            
 				AddNode("newChild",$(this).parent().parent().attr("id"));
 			});
 	
@@ -9454,7 +9492,10 @@ $(document).ready(function () {
 	        /// <summary>
 	        /// Double click handler for editing type of Field Tag i.e. Scalar/Collection/Composite
 	        /// </summary>
-			$(".fieldTagBasedEditor").click( function() {
+			$(".fieldTagBasedEditor").click( function() {	          
+	                      	
+				//Trigger onRowSelect method
+	            onRowSelect($(this).parent());
 	            
 	            // handling multiple clicks
 				if($('#tempHTML').size()>0)
@@ -9465,7 +9506,7 @@ $(document).ready(function () {
 				// embed a drop down in row.
 	            $(this).html(tempHTML);
 				$('#tempHTML').focus();
-	
+
 	            // Save on focus out
 				$('#tempHTML').focusout( function() {
 					var newValue = $('#tempHTML').val();
@@ -9491,6 +9532,9 @@ $(document).ready(function () {
 	        /// </summary>
 			$(".nameBasedEditor").click( function() {
 	
+				//Trigger onRowSelect method
+	            onRowSelect($(this).parent());
+	            
 				// handling multiple clicks
 				if($('#tempHTML').size()>0)
 				 return;
@@ -9529,6 +9573,9 @@ $(document).ready(function () {
 	        /// </summary>
 			$(".textBasedEditor").click( function() {
 				
+				//Trigger onRowSelect method
+	            onRowSelect($(this).parent());
+	            
 				// handling multiple clicks
 				if($('#tempHTML').size()>0)
 				 return;
@@ -9554,7 +9601,10 @@ $(document).ready(function () {
 	        /// A double click handler for editing Scalar/collection/composite type of Field Tag 
 	        /// </summary>
 			$(".typeBasedEditor").click( function() {
-	
+				
+				//Trigger onRowSelect method
+	            onRowSelect($(this).parent());
+	            
 				// handling multiple clicks
 				if($('#tempHTML').size()>0)
 				 return;
@@ -9604,7 +9654,10 @@ $(document).ready(function () {
 	        /// A Deletion handler (triggered on click event of X button) for deleting a Field Tag and all its descendents
 	        /// </summary>
 			$(delID).click( function () {
-	
+				
+				//Trigger onRowSelect method
+	            onRowSelect($(this).parent().parent());
+	            
 	            // confirm deletion
 				var r = confirm("Are you sure you want to delete Field Tag with name : "+	$(this).parent().next().text());
 	
@@ -9640,6 +9693,9 @@ $(document).ready(function () {
 	
 			$(cusID).click( function () {
 	
+				//Trigger onRowSelect method
+	            onRowSelect($(this).parent());
+				
 				/// customizing styles
 				$( "#customAttributeBox" ).dialog( "open" );
 				$( "#customAttributeBox" ).siblings('div.ui-dialog-titlebar').remove();
@@ -9745,7 +9801,29 @@ $(document).ready(function () {
 			}
 		});
 	
+		/// <summary>
+	    /// Reset MMD authoring tool by cleaning UI and global object
+	    /// </summary>
+		function   ResetTool()
+		{
+			 // if we have a success clear UI and global object
+			 rootMMD = {} ;
 	
+			 // Cleaning complete UI
+			 $("tr[childOf]").remove();
+			 
+			 // reseting minimum height of box
+			 $(".xpathEvaluator").dialog( "option", "minHeight",240);
+	
+		}
+		
+	
+		$('#reset_button').click( function() {
+		    // Reset tool
+			ResetTool();
+		});
+		
+		
 	    /// <summary>
 	    /// Event handler for onclick event of Load button.
 	    /// </summary>
@@ -9755,11 +9833,8 @@ $(document).ready(function () {
 	
 			 $.getJSON('http://localhost/mmd/load/mmd.php', function(data) {
 	
-			 // if we have a success clear UI and global object
-			 rootMMD = {} ;
-	
-			 // Cleaning complete UI
-			 $("tr[childOf]").remove();
+			 // Reset tool
+			 ResetTool();
 	
 			 // setting name in UI
 			 $("#mmdName").val(data["name"]);
@@ -9845,7 +9920,7 @@ $(document).ready(function () {
 	    /// JQuery UI dialogue definition for xpathEvaluator which is main dialogue box that contains everything in UI.
 		$( ".xpathEvaluator" ).dialog({
 			minHeight: 240,
-			minWidth: 550,
+			minWidth: 650,
 			closeOnEscape: false,
 			dialogClass: 'main_formatting'
 		});

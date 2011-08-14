@@ -1,5 +1,5 @@
 .markedElement {
-	border: 3px solid #96DEFA !important;
+	border: 3px solid #d4d4d4 !important;
 }
 .inspectorControls, .markOverlay {
 	position: absolute;
@@ -30,12 +30,12 @@
 }
 .inspectorControls div, .inspectorControls label {
 	float: left;
-	background: #96DEFA;
+	background: #d4d4d4;
 	text-align: center;
 	cursor: pointer;
 	font-size: 12px;
 	padding: 3px 0px;
-	border: 3px solid #96DEFA !important;
+	border: 3px solid #d4d4d4 !important;
 }
 .inspectorControls div {
 	width: 57px;
@@ -47,7 +47,7 @@
 	background: #fff;
 }
 .markOverlay {
-	background: url('transp_px.gif') repeat top left;
+	background: url('transp_px.png') repeat top left;
 	opacity: 0.4;
 	filter:alpha(opacity=40);
 }
@@ -124,6 +124,7 @@ td{
 #tempHTML{
 	width: 100%;
 }
+
 #activate{
 	position:fixed;
     background-image: url('activate.png');
@@ -134,6 +135,13 @@ td{
 	bottom: 10px;
 	cursor: hand;
 }
+
 .textBasedEditor{
 	overflow: hidden;
+}
+
+#previewBox{
+ 	width: 150px;
+ 	height: 150px;
+ 	overflow: hidden;
 }

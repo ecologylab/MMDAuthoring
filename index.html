@@ -17,11 +17,11 @@
 	</head>
 	<body>
 
-		<!--
-	<div id="activate">
-	</div>
-	<div id="outerBox">   
-			<div id="customAttributeBox"  callerId="" >
+	<!--
+		<div id="activate">
+		</div>
+		<div id="outerBox">
+			<div id="customAttributeBox" callerId="" >
 				<form id="customAttributeForm">
 					<table id="customAttributeTable" width="100%" class="ui-widget ui-widget-content">
 						<thead>
@@ -36,21 +36,19 @@
 			</div>
 			<div class="mmdMessage">
 			</div>
-			<div  class="xpathEvaluator" title="MMD Creator" >
-
+			<div class="xpathEvaluator" title="MMD Creator" >
 				<span id="mmdTree">
 					<b style="font-size: 13px">MMD Tags</b>
 					<span style="position:absolute; right:10px; width:25%; height:auto;" >
-						
-						<input   type="button" id="Generate_button" value="Generate" style="width: 80%; right:10px;" />
+						<input type="button" id="Generate_button" value="Generate" style="width: 80%; right:10px;" />
 					</span>
 					<br/>
-<br/>
+					<br/>
 					<table width="100%" border="0" cellpadding="1" id="xpathFields">
 						<tr>
 							<td>Name</td>
 							<td>
-							<input type="text" id="mmdName"  size="20"/>
+							<input type="text" id="mmdName" size="20"/>
 							</td>
 							<td>Selector</td>
 							<td>
@@ -73,15 +71,31 @@
 						<tr id="bottomAddButton">
 							<td colspan="7" align="center">
 							<br>
-							<input  type="button" id="Add_node_button" value="+" style="width: 30%" class="modifiedCursor" />
+							<input type="button" id="Add_node_button" value="+" style="width: 30%" class="modifiedCursor" />
 							</td>
 						</tr>
 					</table>
 				</span>
-
-
-				<table width="500px" border="0" cellpadding="1" id="xpathFields">
-					<tr>
+				<table width="600px" border="0" cellpadding="1" id="xpathFields">
+					<tr >
+						<td align="left" colspan="2">
+						&nbsp;&nbsp;&nbsp;&nbsp;
+						<input type="button" id="reset_button" value="Reset" />
+						&nbsp;&nbsp;&nbsp;&nbsp;
+						<input type="button" id="cancel_button" value="Cancel" />
+						&nbsp;&nbsp;&nbsp;&nbsp;
+						<input type="button" id="Load_button" value="Load" />
+						&nbsp;&nbsp;&nbsp;&nbsp;
+						<input type="button" value="Test XPath" id="val_button" />
+						&nbsp;&nbsp;
+						</td>
+						<td rowspan="2" align="center" valign="top" >
+						<span style="font-weight:bold;">Preview</span>
+						<br/>
+						<span id="previewBox"></span>
+						</td>
+					</tr>
+					<tr valign="top">
 						<td>XPath</td>
 						<td>
 						<input type="text" id="result" value="" size="50" style="display: block"/>
@@ -89,21 +103,9 @@
 						</label>
 						</td>
 					</tr>
-                    <tr > &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-						<td align="center" colspan="2"><input type="button" id="cancel_button" value="Cancel" />
-                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-						<input   type="button" id="Load_button" value="Load" />
-						 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-						<input type="button" value="Test XPath" id="val_button" />
-                        </td>
-                    
-					</tr>
-					
 				</table>
 			</div>
-		</div>
-        
-        
+		</div> 
 		<!-- after this -->
 		<div>
 			<div>
