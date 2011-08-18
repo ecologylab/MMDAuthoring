@@ -9070,6 +9070,9 @@ $(document).ready(function () {
 		// hiding activate button
 		$("#activate").hide();
 		
+		/// Global variable to store parent mmd 
+		var extendsFrom = 'document';
+		
 	    /// <summary>
 	    /// Global JS object to maintain mmd. It can be directly used with JSON.stringify to get mmd in JSON format. 
 		/// </summary>
@@ -9172,6 +9175,7 @@ $(document).ready(function () {
 				} 
 	            else 
 	            {
+	            	//alert(JSON.stringify(currentNode[i]));
 					alert("Invalid Object - Unable to load in UI");
 					return;
 				}
@@ -9815,6 +9819,8 @@ $(document).ready(function () {
 			 // reseting minimum height of box
 			 $(".xpathEvaluator").dialog( "option", "minHeight",240);
 	
+			// reset extends option
+			extendsFrom = 'document';
 		}
 		
 	
@@ -9828,24 +9834,55 @@ $(document).ready(function () {
 	    /// Event handler for onclick event of Load button.
 	    /// </summary>
 		$('#Load_button').click( function() {
+			
+			var srcURL = 'http://localhost:82/?purl=http://portal.acm.org/citation.cfm?id=1086057.1086144' ;
+			var isParentDocument = true ;
 	
-			 /// When we will have a working aervice for repository we will make this path dynamic
-	
-			 $.getJSON('http://localhost/mmd/load/mmd.php', function(data) {
-	
-			 // Reset tool
-			 ResetTool();
-	
-			 // setting name in UI
-			 $("#mmdName").val(data["name"]);
-	
-			 // Restoring url in UI
-			 $("#selectorURL").val(data["selector"]["url_path_tree"]);
-	
-	         // initiating object to ui procedure by calling for root
-			 loadInUI(data["kids"],"");
-	
-			 });
+			$(".mmdMessage").html('<div id="tempLoad">Source URL :&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" alt="Enter source url" id="srcURL" size="30"/><br/>Load as extend : &nbsp;&nbsp;&nbsp;<input type="checkbox" id="isExtented"  /></div>');
+			$(".mmdMessage").attr("title","Load MMD");
+			$( ".mmdMessage" ).dialog({
+				modal: true,
+				minWidth: 100,
+				minHeight: 100,
+			    resizable:false,
+				buttons: {
+					Ok: function() {
+						
+				    	 srcURL = srcURL + $("#srcURL").val();
+				    	 isParentDocument  = $("#isExtented").attr('checked') ;
+				    	 
+						 $("#tempLoad").remove();
+						
+						  /// Service - Assumption
+						  $.getJSON(srcURL, function(data) {
+				
+							// Reset tool
+							ResetTool();
+					
+							// Update global object
+							rootMMD = data["meta_metadata"];
+		
+							// loaded in extending mode
+							if(isParentDocument)
+								extendsFrom = rootMMD["name"];
+							
+							 // setting name in UI
+							 $("#mmdName").val(rootMMD["name"]);
+					
+							 // Restoring url in UI
+							 if(rootMMD["selector"]["url_path_tree"] != undefined)
+								 $("#selectorURL").val(rootMMD["selector"]["url_path_tree"]);
+					
+					         // initiating object to ui procedure by calling for root
+							 loadInUI(rootMMD["kids"],"");
+						 
+						 });
+						 
+						$( this ).dialog( "close" );
+					}
+				}
+			});
+			 
 			
 		});
 	
@@ -9857,19 +9894,26 @@ $(document).ready(function () {
 		$('#Generate_button').click( function() {
 	        
 	        // Updating values in rootMMD
-	        rootMMD = {};
+	       
+	       // Uncomment following line to reset
+	       //rootMMD = {};
 			var path = {};
 			rootMMD["parser"] = "xpath";
 			rootMMD["name"] = $("#mmdName").val();
-			rootMMD["extends"] = "document";
+			
+			// Using global variable
+			rootMMD["extends"] = extendsFrom;
 			path["url_path_tree"] = $("#selectorURL").val();
 			rootMMD["selector"] = path;
 	
 	        // initiating ui to object procedure by calling for root
-			rootMMD["kids"]=  BuildMMD($("#mmdTable tr[childOf]"));
+			rootMMD["kids"] =  BuildMMD($("#mmdTable tr[childOf]"));
 	
+			// stringify results
+			var tempResult = JSON.stringify(rootMMD) ; 
+			
 	        // show results in windows box.
-			$(".mmdMessage").text( JSON.stringify(rootMMD));
+			$(".mmdMessage").text( tempResult );
 			$(".mmdMessage").attr("title","JSON MMD");
 			$( ".mmdMessage" ).dialog({
 				modal: true,
@@ -9878,6 +9922,24 @@ $(document).ready(function () {
 				maxWidth: 700,
 				buttons: {
 					Ok: function() {
+						$( this ).dialog( "close" );
+					},
+					'Save':function() {
+						
+						/// SERVICE ASSUMPTION resturn a json as result with 2 fields success - true/false and message
+						$.post("URL to save JSON", tempResult ,  function(data) {
+							
+						     if(data['success']=='false')
+						     {
+						     	alert("Save " + data['message']);
+						     }
+						     else
+						     {
+						     	alert("Save " + data['message']);
+						     }
+						          	     
+					   });
+											
 						$( this ).dialog( "close" );
 					}
 				}
