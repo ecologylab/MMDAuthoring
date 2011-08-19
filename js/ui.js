@@ -31,6 +31,9 @@ $(document).ready(function () {
 		// hiding activate button
 		$("#activate").hide();
 		
+		/// Global variable to hold url of respository service
+		var repoServiceURL = 'http://localhost:82';
+		
 		/// Global variable to store parent mmd 
 		var extendsFrom = 'document';
 		
@@ -66,6 +69,34 @@ $(document).ready(function () {
 		"field_parser"
 		];
 	
+		 /// <summary>
+	    /// Global list of mmd in repository. Currently being used for autosuggest.
+	    /// </summary>
+		var repoMMDList = new Array();
+		
+		
+        /// <summary>
+	    /// Loads list of mmd in Global list variable repoMMDList
+	    /// </summary>
+		$.getJSON(repoServiceURL+'/?getMMDList', function(data) {
+				try
+				{
+					if( data['meta_metadata_name_list_response']['mmd_name_list']['mmd_name_list'] != undefined )
+					{
+						repoMMDList = data['meta_metadata_name_list_response']['mmd_name_list']['mmd_name_list'];
+					}
+					else
+					{
+						alert("Error : Invalid response while fetching mmd list ");
+					}
+				}
+				catch(e) {
+					alert( 'Error: Fetching mmd list ' + e );
+				}
+				
+		});
+		
+		
 	    /// This statement adds all required HTML content in Page.
 		$('body').prepend('<div id="outerBox"> <div id="customAttributeBox" callerId="" > <form id="customAttributeForm"> <table id="customAttributeTable" width="100%" class="ui-widget ui-widget-content"> <thead> <tr class="ui-widget-header "> <td></td> <th>Attribute</th> <th>Value</th> </tr> </thead> </table> </form> </div> <div class="mmdMessage"> </div> <div class="xpathEvaluator" title="MMD Creator" > <span id="mmdTree"> <b style="font-size: 13px">MMD Tags</b> <span style="position:absolute; right:10px; width:25%; height:auto;" > <input type="button" id="Generate_button" value="Generate" style="width: 80%; right:10px;" /> </span> <br/> <br/> <table width="100%" border="0" cellpadding="1" id="xpathFields"> <tr> <td>Name</td> <td> <input type="text" id="mmdName" size="20"/> </td> <td>Selector</td> <td> <input type="text" id="selectorURL" size="20"/> </td> </tr> </table> <table id="mmdTable" width="100%" class="ui-widget ui-widget-content"> <thead> <tr class="ui-widget-header "> <th>&nbsp;</th> <th>Name</th> <th>Xpath</th> <th>FieldType</th> <th>Comment</th> <th>Type</th> <th>&nbsp;</th> </tr> </thead> <tr id="bottomAddButton"> <td colspan="7" align="center"> <br> <input type="button" id="Add_node_button" value="+" style="width: 30%" class="modifiedCursor" /> </td> </tr> </table> </span> <table width="600px" border="0" cellpadding="1" id="xpathFields"> <tr > <td align="left" colspan="2">&nbsp;&nbsp;&nbsp;&nbsp;<input type="button" id="reset_button" value="Reset" /> &nbsp;&nbsp;&nbsp;&nbsp; <input type="button" id="cancel_button" value="Cancel" /> &nbsp;&nbsp;&nbsp;&nbsp; <input type="button" id="Load_button" value="Load" /> &nbsp;&nbsp;&nbsp;&nbsp; <input type="button" value="Test XPath" id="val_button" />&nbsp;&nbsp; </td> <td rowspan="2" align="center" valign="top" ><span style="font-weight:bold;">Preview</span><br/><span id="previewBox"></span> </td> </tr> <tr valign="top"> <td>XPath</td> <td> <input type="text" id="result" value="" size="50" style="display: block"/> <label> </label> </td> </tr> </table> </div> </div> ');
 		
@@ -147,10 +178,26 @@ $(document).ready(function () {
 	
 	            // Fill in all standard field attributes is they exists
 				name = content["name"];
-				type = content["type"]==undefined ? "" : content["type"];
 				xPath = content["xpath"]==undefined ? "" : content["xpath"];
 				comment = content["comment"]==undefined ? "" : content["comment"];
 	
+				if(content["scalar_type"] != undefined)
+				{
+					type = content["scalar_type"];
+				}
+				else if(content["child_type"] != undefined)
+				{
+					type = content["child_type"];
+				}
+				else if(content["type"] != undefined)
+				{
+					type = content["type"];
+				}
+				else
+				{
+					type = "";
+				}
+				
 	            // Check existance of custom attributes using global list object customAttributeData
 				customAtt = loadCustomAttributes(content);
 	
@@ -257,7 +304,7 @@ $(document).ready(function () {
 					collection_field["name"]=name;
 					collection_field["xpath"]=generatedXpath ;
 					collection_field["comment"]=comment ;
-					collection_field["type"]= type;
+					collection_field["child_type"]= type;
 	
 					var pastCustomAttributes = 	selectedElements.attr("customAttrib");
 	
@@ -393,7 +440,7 @@ $(document).ready(function () {
 					newRow = $("<tr id=\""+d+"\" customAttrib =\"\" childOf=\""+parent+"\"   ><td > <span id=\""+delID+"\" class=\"crossImage\"> &nbsp;&nbsp;&nbsp;  </span>&nbsp;<span  id=\""+AddID+"\" class=\"addImage\">&nbsp;&nbsp;&nbsp;   </span> </td><td class=\"nameBasedEditor\">"+name +"</td><td class=\"textBasedEditor\">"+$("#result").val()+"</td><td class=\"fieldTagBasedEditor\">Scalar</td><td class=\"textBasedEditor\">MyComment</td><td class=\"typeBasedEditor\">String</td><td class=\"customAttribute\" id=\""+cusID+"\" > &nbsp;&nbsp;&nbsp;&nbsp;</td></tr>");
 	
 	            // increase the size of main dialogue box.
-				$(".xpathEvaluator").dialog( "option", "minHeight",$(".xpathEvaluator").dialog( "option", "minHeight" )+10);
+				$(".xpathEvaluator").dialog( "option", "minHeight",$(".xpathEvaluator").dialog( "option", "Height" )+10);
 	
 				if(parent=="") 
 	            {
@@ -584,7 +631,21 @@ $(document).ready(function () {
 	                // embed drop down
 					$(this).html(tempHTML);
 					$('#tempHTML').focus();
+					
+		            // add autosuggest by JQuery UI
+					$('#tempHTML').autocomplete({
+						source: repoMMDList,
+						select: function(event, ui) {
+							var newValue = $('#tempHTML').val();
+							$('#tempHTML').parent().text(newValue);
+							$('#tempHTML').remove();
+						},
+		                // to show all when textbox is blank
+						minLength: 0,
+					});
 	
+					$(".ui-autocomplete").css("font-size","12px");
+				
 	                // save on focus out
 					$('#tempHTML').focusout( function() {
 						var newValue = $('#tempHTML').val();
@@ -601,7 +662,7 @@ $(document).ready(function () {
 	                // embed text box
 					$(this).html(tempHTML);
 					$('#tempHTML').focus();
-	
+					
 	                // save on focus out
 					$('#tempHTML').focusout( function() {
 	
@@ -778,7 +839,7 @@ $(document).ready(function () {
 			 $("tr[childOf]").remove();
 			 
 			 // reseting minimum height of box
-			 $(".xpathEvaluator").dialog( "option", "minHeight",240);
+			 $(".xpathEvaluator").dialog( "option", "Height",240);
 	
 			// reset extends option
 			extendsFrom = 'document';
@@ -796,7 +857,7 @@ $(document).ready(function () {
 	    /// </summary>
 		$('#Load_button').click( function() {
 			
-			var srcURL = 'http://localhost:82/?purl=http://portal.acm.org/citation.cfm?id=1086057.1086144' ;
+			var srcURL = repoServiceURL ;
 			var isParentDocument = true ;
 	
 			$(".mmdMessage").html('<div id="tempLoad">Source URL :&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" alt="Enter source url" id="srcURL" size="30"/><br/>Load as extend : &nbsp;&nbsp;&nbsp;<input type="checkbox" id="isExtented"  /></div>');
@@ -814,7 +875,7 @@ $(document).ready(function () {
 				    	 
 						 $("#tempLoad").remove();
 						
-						  /// Service - Assumption
+						  /// Service - Assumption - completed with a invalid json return "" field tag type
 						  $.getJSON(srcURL, function(data) {
 				
 							// Reset tool
