@@ -9055,7 +9055,6 @@ var elementInspector = {
 
 
 
-
 /*
  * Onload procedures
  */
@@ -9896,7 +9895,7 @@ $(document).ready(function () {
 	    /// </summary>
 		$('#Load_button').click( function() {
 			
-			var srcURL = repoServiceURL ;
+			var srcURL = repoServiceURL + '/?purl=';
 			var isParentDocument = true ;
 	
 			$(".mmdMessage").html('<div id="tempLoad">Source URL :&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" alt="Enter source url" id="srcURL" size="30"/><br/>Load as extend : &nbsp;&nbsp;&nbsp;<input type="checkbox" id="isExtented"  /></div>');
