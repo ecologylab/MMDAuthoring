@@ -9987,15 +9987,15 @@ $(document).ready(function () {
 					'Save':function() {
 						
 						/// SERVICE ASSUMPTION resturn a json as result with 2 fields success - true/false and message
-						$.post("URL to save JSON", tempResult ,  function(data) {
+						$.post(repoServiceURL+'/?saveMMD', tempResult ,  function(data) {
 							
 						     if(data['success']=='false')
 						     {
-						     	alert("Save " + data['message']);
+						     	alert("Saving failed :" + data['message']);
 						     }
 						     else
 						     {
-						     	alert("Save " + data['message']);
+						     	alert("Saved " + data['message']);
 						     }
 						          	     
 					   });
