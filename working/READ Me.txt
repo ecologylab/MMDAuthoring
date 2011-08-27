@@ -8,6 +8,11 @@ Steps to make Development version of MMDAuthoring Tool work
 $('head').append( $('<link rel="stylesheet" type="text/css" />').attr('href','http://localhost/mmd/css/style.css') );
 $('head').append( $('<link rel="stylesheet" type="text/css" />').attr('href','http://localhost/mmd/css/jquery-ui-1.8.13.custom.css') );
 
+update 
+
+		/// Global variable to hold url of respository service
+		var repoServiceURL = 'http://localhost:82';
+if required
 
 3 Install appropriate version of user script.
 
