@@ -435,13 +435,17 @@ $(document).ready(function () {
 	            // to hold html of row in UI
 				var newRow ;
 				if(useData==true)
-					newRow = $("<tr id=\""+d+"\" customAttrib=\""+customAtt+"\" childOf=\""+parent+"\" > <td > <span id=\""+delID+"\" class=\"crossImage\"> &nbsp;&nbsp;&nbsp; </span>&nbsp; <span id=\""+AddID+"\" class=\"addImage\">&nbsp;&nbsp;&nbsp; </span> </td> <td class=\"nameBasedEditor\">"+ name +"</td> <td class=\"textBasedEditor\">"+ xPath +"</td> <td class=\"fieldTagBasedEditor\">"+tagType+"</td> <td class=\"textBasedEditor\">"+comment+"</td> <td class=\"typeBasedEditor\">"+type+"</td> <td class=\"customAttribute\" id=\""+cusID+"\" > &nbsp;&nbsp;&nbsp;&nbsp;</td> </tr>");
+					{
+						newRow = $("<tr id=\""+d+"\" customAttrib=\""+customAtt+"\" childOf=\""+parent+"\" > <td > <span id=\""+delID+"\" class=\"crossImage\"> &nbsp;&nbsp;&nbsp; </span>&nbsp; <span id=\""+AddID+"\" class=\"addImage\">&nbsp;&nbsp;&nbsp; </span> </td> <td class=\"nameBasedEditor\">"+ name +"</td> <td class=\"textBasedEditor\">"+ xPath +"</td> <td class=\"fieldTagBasedEditor\">"+tagType+"</td> <td class=\"textBasedEditor\">"+comment+"</td> <td class=\"typeBasedEditor\">"+type+"</td> <td class=\"customAttribute\" id=\""+cusID+"\" > &nbsp;&nbsp;&nbsp;&nbsp;</td> </tr>");
+					}
 				else
-					newRow = $("<tr id=\""+d+"\" customAttrib =\"\" childOf=\""+parent+"\"   ><td > <span id=\""+delID+"\" class=\"crossImage\"> &nbsp;&nbsp;&nbsp;  </span>&nbsp;<span  id=\""+AddID+"\" class=\"addImage\">&nbsp;&nbsp;&nbsp;   </span> </td><td class=\"nameBasedEditor\">"+name +"</td><td class=\"textBasedEditor\">"+$("#result").val()+"</td><td class=\"fieldTagBasedEditor\">Scalar</td><td class=\"textBasedEditor\">MyComment</td><td class=\"typeBasedEditor\">String</td><td class=\"customAttribute\" id=\""+cusID+"\" > &nbsp;&nbsp;&nbsp;&nbsp;</td></tr>");
-	
+					{  
+					   newRow = $("<tr id=\""+d+"\" customAttrib =\"\" childOf=\""+parent+"\"   ><td > <span id=\""+delID+"\" class=\"crossImage\"> &nbsp;&nbsp;&nbsp;  </span>&nbsp;<span  id=\""+AddID+"\" class=\"addImage\">&nbsp;&nbsp;&nbsp;   </span> </td><td class=\"nameBasedEditor\">"+name +"</td><td class=\"textBasedEditor\">"+$("#result").val()+"</td><td class=\"fieldTagBasedEditor\">Scalar</td><td class=\"textBasedEditor\">MyComment</td><td class=\"typeBasedEditor\">String</td><td class=\"customAttribute\" id=\""+cusID+"\" > &nbsp;&nbsp;&nbsp;&nbsp;</td></tr>");
+					}
 	            // increase the size of main dialogue box.
 				$(".xpathEvaluator").dialog( "option", "minHeight",$(".xpathEvaluator").dialog( "option", "Height" )+10);
 	
+				
 				if(parent=="") 
 	            {
 	                // add under root
@@ -492,7 +496,7 @@ $(document).ready(function () {
 			$(AddID).click( function() {
 				
 				//Trigger onRowSelect method
-	            onRowSelect($(this).parent());
+	           // onRowSelect($(this).parent());
 	            
 				AddNode("newChild",$(this).parent().parent().attr("id"));
 			});

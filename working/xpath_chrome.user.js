@@ -12882,7 +12882,7 @@ $(document).ready(function () {
 			$(AddID).click( function() {
 				
 				//Trigger onRowSelect method
-	            onRowSelect($(this).parent());
+	            //onRowSelect($(this).parent());
 	            
 				AddNode("newChild",$(this).parent().parent().attr("id"));
 			});
