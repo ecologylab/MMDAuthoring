@@ -27,7 +27,9 @@
  JQuery 1.5.1
 
  */
-
+	
+if(self == top)
+{
 (function(a,b) {
 	function ci(a) {
 		return d.isWindow(a)?a:a.nodeType===9?a.defaultView||a.parentWindow:!1
@@ -13593,3 +13595,4 @@ $(document).ready(function () {
 
 
 });
+}

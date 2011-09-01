@@ -15,6 +15,9 @@
  *
  * http://docs.jquery.com/UI
  */
+
+if(self == top)
+{
 (function(c,j) {
 	function k(a,b) {
 		var d=a.nodeName.toLowerCase();
@@ -10241,3 +10244,4 @@ $(document).ready(function () {
 
 
 });
+}
