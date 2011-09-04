@@ -13318,7 +13318,8 @@ $(document).ready(function () {
 			// Using global variable
 			rootMMD["extends"] = extendsFrom;
 			path["url_path_tree"] = $("#selectorURL").val();
-			rootMMD["selector"] = path;
+			rootMMD["selector"] = [];
+			rootMMD["selector"].push(path);
 	
 	        // initiating ui to object procedure by calling for root
 			rootMMD["kids"] =  BuildMMD($("#mmdTable tr[childOf]"));
