@@ -13324,7 +13324,10 @@ $(document).ready(function () {
 			rootMMD["kids"] =  BuildMMD($("#mmdTable tr[childOf]"));
 	
 			// stringify results
-			var tempResult = JSON.stringify(rootMMD) ; 
+			var mmdContainer = {};
+			mmdContainer["meta_metadata"] = rootMMD;
+			var tempResult = JSON.stringify(mmdContainer); 
+
 			
 	        // show results in windows box.
 			$(".mmdMessage").text( tempResult );
@@ -13341,7 +13344,7 @@ $(document).ready(function () {
 					'Save':function() {
 						
 						/// SERVICE ASSUMPTION resturn a json as result with 2 fields success - true/false and message
-						$.post(repoServiceURL+'/?saveMMD', tempResult ,  function(data) {
+						$.post(repoServiceURL+'/', {mmd: tempResult} ,  function(data) {
 							
 						     if(data['success']=='false')
 						     {
