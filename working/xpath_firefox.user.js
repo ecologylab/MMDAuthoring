@@ -8181,8 +8181,8 @@ jQuery.effects|| function(f,j) {
  * My script starts from here
  */
 
-$('head').append( $('<link rel="stylesheet" type="text/css" />').attr('href','http://localhost/mmd/css/style.css') );
-$('head').append( $('<link rel="stylesheet" type="text/css" />').attr('href','http://localhost/mmd/css/jquery-ui-1.8.13.custom.css') );
+$('head').append( $('<link rel="stylesheet" type="text/css" />').attr('href','http://ecologylab.net/MMDAuthoring/css/style.css') );
+$('head').append( $('<link rel="stylesheet" type="text/css" />').attr('href','http://ecologylab.net/MMDAuthoring/css/jquery-ui-1.8.13.custom.css') );
 
 window._content = window;
 
