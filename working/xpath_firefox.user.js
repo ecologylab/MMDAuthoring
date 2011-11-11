@@ -8206,7 +8206,7 @@ if (window.dialogArguments && window.dialogArguments.external) {
 
 // XPathException
 // An Error object will be thrown, this is just a handler to instantiate that object
-var XPathException = new _XPathExceptionHandler();
+
 function _XPathExceptionHandler() {
 	this.INVALID_EXPRESSION_ERR = 51;
 	this.TYPE_ERR = 52;
@@ -8233,10 +8233,11 @@ function _XPathExceptionHandler() {
 	}
 
 }
+var XPathException = new _XPathExceptionHandler();
 
 // DOMException
 // An Error object will be thrown, this is just a handler to instantiate that object
-var DOMException = new _DOMExceptionHandler();
+
 function _DOMExceptionHandler() {
 	this.ThrowInvalidState = function(message) {
 		ThrowError(13, "The state of the object is no longer valid", message);
@@ -8249,6 +8250,7 @@ function _DOMExceptionHandler() {
 	}
 
 }
+var DOMException = new _DOMExceptionHandler();
 
 // XPathEvaluator
 // implemented as document object methods
@@ -8329,6 +8331,7 @@ function XPathNSResolver(node) {
 }
 
 // XPathResult
+/*
 XPathResult.ANY_TYPE = 0;
 XPathResult.NUMBER_TYPE = 1;
 XPathResult.STRING_TYPE = 2;
@@ -8339,7 +8342,6 @@ XPathResult.UNORDERED_SNAPSHOT_TYPE = 6;
 XPathResult.ORDERED_SNAPSHOT_TYPE = 7;
 XPathResult.ANY_UNORDERED_NODE_TYPE = 8;
 XPathResult.FIRST_ORDERED_NODE_TYPE = 9;
-
 function XPathResult
 (
 expression,		// XPathExpression
@@ -8548,11 +8550,12 @@ type			// Number
 	}
 
 }
+*/
 
 document.reloadDom = function() {
 	document._XPathMsxmlDocumentHelper.reset();
 }
-document._XPathMsxmlDocumentHelper = new _XPathMsxmlDocumentHelper();
+
 function _XPathMsxmlDocumentHelper() {
 	this.getDom = function() {
 		activateDom(this);
@@ -8641,6 +8644,7 @@ function _XPathMsxmlDocumentHelper() {
 	}
 
 }
+document._XPathMsxmlDocumentHelper = new _XPathMsxmlDocumentHelper();
 
 var xPath = {
 	ignoreArguments : {
